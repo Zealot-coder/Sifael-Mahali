@@ -17,3 +17,6 @@ Interactive, SEO-ready Next.js portfolio with motion, a lightweight 3D hero, and
 ## Notes
 - Contact API uses Resend when environment variables are configured.
 - If API email is not configured, users still have a mailto fallback in the Contact section.
+- For pinned GitHub repositories via GraphQL, set:
+  - `GITHUB_USERNAME` (default: `Zealot-coder`)
+  - `GITHUB_TOKEN` (GitHub personal access token with read access)

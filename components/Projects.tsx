@@ -9,74 +9,6 @@ import { cn } from '@/lib/cn';
 import SectionHeading from './SectionHeading';
 
 type FilterOption = 'All' | ProjectCategory;
-type GitHubRepo = {
-  id: number;
-  name: string;
-  description: string | null;
-  html_url: string;
-  homepage: string | null;
-  language: string | null;
-  topics?: string[];
-  stargazers_count: number;
-  updated_at: string;
-  archived: boolean;
-  fork: boolean;
-};
-
-const SECURITY_TERMS = [
-  'security',
-  'cyber',
-  'ctf',
-  'forensic',
-  'threat',
-  'pentest',
-  'vulnerability',
-  'incident',
-  'network',
-  'siem',
-  'osint'
-];
-
-const BACKEND_TERMS = [
-  'api',
-  'backend',
-  'server',
-  'spring',
-  'java',
-  'node',
-  'python',
-  'auth',
-  'database'
-];
-
-function includesAny(text: string, terms: string[]) {
-  return terms.some((term) => text.includes(term));
-}
-
-function repoCategories(repo: GitHubRepo): ProjectCategory[] {
-  const haystack =
-    `${repo.name} ${repo.description ?? ''} ${(repo.topics ?? []).join(' ')}`.toLowerCase();
-  const categories: ProjectCategory[] = [];
-
-  if (includesAny(haystack, SECURITY_TERMS)) categories.push('Security');
-  if (includesAny(haystack, ['ai', 'ml', 'llm', 'neural'])) categories.push('AI');
-  if (includesAny(haystack, ['mobile', 'android', 'ios', 'react-native', 'flutter']))
-    categories.push('Mobile');
-  if (categories.length === 0 || includesAny(haystack, BACKEND_TERMS))
-    categories.push('Web');
-
-  return [...new Set(categories)];
-}
-
-function repoScore(repo: GitHubRepo) {
-  const haystack =
-    `${repo.name} ${repo.description ?? ''} ${(repo.topics ?? []).join(' ')}`.toLowerCase();
-  let score = 0;
-  if (includesAny(haystack, SECURITY_TERMS)) score += 40;
-  if (includesAny(haystack, BACKEND_TERMS)) score += 25;
-  score += Math.min(20, repo.stargazers_count * 2);
-  return score;
-}
 
 export default function Projects() {
   const reducedMotion = useReducedMotion();
@@ -95,63 +27,19 @@ export default function Projects() {
 
     const loadGitHubProjects = async () => {
       try {
-        const response = await fetch(
-          'https://api.github.com/users/Zealot-coder/repos?per_page=100&sort=updated',
-          {
-            signal: controller.signal,
-            headers: {
-              Accept: 'application/vnd.github+json'
-            }
-          }
-        );
-
+        const response = await fetch('/api/github-projects', {
+          signal: controller.signal
+        });
         if (!response.ok) return;
 
-        const repositories = (await response.json()) as GitHubRepo[];
+        const payload = (await response.json()) as {
+          ok?: boolean;
+          projects?: Project[];
+        };
 
-        const mapped = repositories
-          .filter((repo) => !repo.fork && !repo.archived)
-          .sort((a, b) => repoScore(b) - repoScore(a))
-          .slice(0, 8)
-          .map((repo) => {
-            const categories = repoCategories(repo);
-            const stack = [
-              repo.language ?? '',
-              ...(repo.topics ?? []).slice(0, 4),
-              'GitHub API'
-            ].filter(Boolean);
-            const title = repo.name.replace(/[-_]/g, ' ');
-            const lastUpdated = new Date(repo.updated_at).toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'short'
-            });
-            const imageText = encodeURIComponent(repo.name);
-
-            return {
-              id: `gh-${repo.id}`,
-              title: title.replace(/\b\w/g, (char) => char.toUpperCase()),
-              shortDescription:
-                repo.description ??
-                'GitHub repository imported dynamically. Add extended case-study context.',
-              longDescription: `${
-                repo.description ??
-                'Repository imported dynamically from GitHub. Add architecture notes, security decisions, and outcomes.'
-              }\n\nStars: ${repo.stargazers_count} • Last Updated: ${lastUpdated}`,
-              categories,
-              stack: [...new Set(stack)].slice(0, 5),
-              githubUrl: repo.html_url,
-              liveUrl: repo.homepage ?? '',
-              screenshots: [
-                `https://placehold.co/1200x675/140b06/f44e00?text=${imageText}`,
-                `https://placehold.co/1200x675/140b06/ff8c29?text=${imageText}+Preview`
-              ],
-              source: 'github' as const,
-              stars: repo.stargazers_count,
-              updatedAt: lastUpdated
-            };
-          });
-
-        setGithubProjects(mapped);
+        if (Array.isArray(payload.projects)) {
+          setGithubProjects(payload.projects);
+        }
       } catch {
         // Silent fallback: component already has manual projects.
       }
@@ -198,7 +86,7 @@ export default function Projects() {
         <SectionHeading
           eyebrow="Projects"
           title="Recent Builds And Security-Driven Experiments"
-          description="Filter by domain, then open a card to view details, stack, and media placeholders."
+          description="Pinned repositories are loaded from GitHub GraphQL when configured, then merged with case-study projects."
         />
       </motion.div>
 
