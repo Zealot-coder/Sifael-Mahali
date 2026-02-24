@@ -1,8 +1,13 @@
-import { portfolioContent } from '@/content/content';
+import type { PortfolioContent } from '@/content/content';
 import Reveal from './motion/Reveal';
 import SectionHeading from './SectionHeading';
 
-export default function Skills() {
+interface SkillsProps {
+  skills: PortfolioContent['skills'];
+  certifications: PortfolioContent['certifications'];
+}
+
+export default function Skills({ skills, certifications }: SkillsProps) {
   return (
     <section id="skills" className="section-shell">
       <Reveal>
@@ -15,7 +20,7 @@ export default function Skills() {
 
       <Reveal delay={0.05}>
         <div className="grid gap-6 md:grid-cols-2">
-          {portfolioContent.skills.map((group) => (
+          {skills.map((group) => (
             <article key={group.category} className="glass-card p-6 sm:p-8">
               <h3 className="font-display text-xl font-semibold text-text">{group.category}</h3>
               <ul className="mt-4 space-y-4">
@@ -39,14 +44,14 @@ export default function Skills() {
         </div>
       </Reveal>
 
-      {portfolioContent.certifications.length > 0 ? (
+      {certifications.length > 0 ? (
         <Reveal delay={0.11}>
           <div className="mt-6 glass-card p-6 sm:p-8">
             <h3 className="font-display text-xl font-semibold text-text">
               Certifications and Achievements
             </h3>
             <ul className="mt-4 space-y-3 text-sm text-muted">
-              {portfolioContent.certifications.map((cert) => (
+              {certifications.map((cert) => (
                 <li key={cert.name} className="rounded-xl border border-line/40 bg-surfaceAlt/40 p-3">
                   {cert.name} | {cert.issuer} | {cert.issueDate}
                   {cert.credentialId ? ` | Credential ID: ${cert.credentialId}` : ''}

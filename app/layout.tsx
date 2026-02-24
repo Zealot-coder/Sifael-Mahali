@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Manrope, Syne } from 'next/font/google';
-import { portfolioContent } from '@/content/content';
+import { getPortfolioContent } from '@/lib/portfolio-store';
 import './globals.css';
 
 const fontSans = Manrope({
@@ -20,40 +20,44 @@ const fontDisplay = Syne({
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://sifael-mahali-portfolio.vercel.app';
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: {
-    default: portfolioContent.site.title,
-    template: '%s | Sifael Mahali'
-  },
-  description: portfolioContent.site.description,
-  keywords: portfolioContent.site.keywords,
-  openGraph: {
-    type: 'website',
-    url: siteUrl,
-    title: portfolioContent.site.title,
-    description: portfolioContent.site.description,
-    siteName: 'Sifael Mahali Portfolio',
-    images: [
-      {
-        url: '/og-image.svg',
-        width: 1200,
-        height: 630,
-        alt: 'Sifael Mahali Portfolio'
-      }
-    ]
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: portfolioContent.site.title,
-    description: portfolioContent.site.description,
-    images: ['/og-image.svg']
-  },
-  robots: {
-    index: true,
-    follow: true
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getPortfolioContent();
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: content.site.title,
+      template: `%s | ${content.site.name}`
+    },
+    description: content.site.description,
+    keywords: content.site.keywords,
+    openGraph: {
+      type: 'website',
+      url: siteUrl,
+      title: content.site.title,
+      description: content.site.description,
+      siteName: `${content.site.name} Portfolio`,
+      images: [
+        {
+          url: '/og-image.svg',
+          width: 1200,
+          height: 630,
+          alt: `${content.site.name} Portfolio`
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: content.site.title,
+      description: content.site.description,
+      images: ['/og-image.svg']
+    },
+    robots: {
+      index: true,
+      follow: true
+    }
+  };
+}
 
 export const viewport: Viewport = {
   width: 'device-width',

@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { portfolioContent } from '@/content/content';
+import type { PortfolioContent } from '@/content/content';
 import Reveal from './motion/Reveal';
 import SectionHeading from './SectionHeading';
 
@@ -19,15 +19,19 @@ const INITIAL_FORM: FormValues = {
   message: ''
 };
 
-export default function Contact() {
+interface ContactProps {
+  contact: PortfolioContent['contact'];
+}
+
+export default function Contact({ contact }: ContactProps) {
   const [values, setValues] = useState<FormValues>(INITIAL_FORM);
   const [state, setState] = useState<SubmitState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   const fallbackMailto = useMemo(() => {
     const subject = encodeURIComponent('Portfolio inquiry');
-    return `mailto:${portfolioContent.contact.email}?subject=${subject}`;
-  }, []);
+    return `mailto:${contact.email}?subject=${subject}`;
+  }, [contact.email]);
 
   useEffect(() => {
     if (state !== 'success') return;
@@ -161,7 +165,7 @@ export default function Contact() {
           <article className="glass-card p-6 sm:p-8">
             <h3 className="font-display text-xl font-semibold text-text">Direct Links</h3>
             <ul className="mt-4 space-y-3 text-sm">
-              {portfolioContent.contact.socials.map((social) => (
+              {contact.socials.map((social) => (
                 <li key={social.label}>
                   <a
                     href={social.url}
@@ -180,7 +184,7 @@ export default function Contact() {
               href={fallbackMailto}
               className="mt-4 inline-flex rounded-xl border border-line/50 bg-surfaceAlt/70 px-4 py-3 text-sm font-medium text-text transition hover:border-brand/60 hover:text-brand"
             >
-              Email: {portfolioContent.contact.email}
+              Email: {contact.email}
             </a>
           </article>
         </div>

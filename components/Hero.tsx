@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
-import { portfolioContent } from '@/content/content';
+import type { PortfolioContent } from '@/content/content';
 
 const HeroScene = dynamic(() => import('@/components/three/HeroScene'), {
   ssr: false,
@@ -15,9 +15,12 @@ const HeroScene = dynamic(() => import('@/components/three/HeroScene'), {
   )
 });
 
-export default function Hero() {
+interface HeroProps {
+  hero: PortfolioContent['hero'];
+}
+
+export default function Hero({ hero }: HeroProps) {
   const reduceMotion = useReducedMotion();
-  const { hero } = portfolioContent;
   const nameWords = hero.name.split(' ').filter(Boolean);
   const taglineWords = hero.tagline.split(' ').filter(Boolean);
   const transition = reduceMotion

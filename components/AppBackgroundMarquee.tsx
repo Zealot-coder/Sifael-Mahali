@@ -1,7 +1,8 @@
-import { portfolioContent } from '@/content/content';
+interface AppBackgroundMarqueeProps {
+  name: string;
+}
 
-export default function AppBackgroundMarquee() {
-  const name = portfolioContent.site.name;
+export default function AppBackgroundMarquee({ name }: AppBackgroundMarqueeProps) {
   const line = `${name}   ${name}   ${name}   ${name}   ${name}   `;
 
   return (

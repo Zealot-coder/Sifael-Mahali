@@ -4,13 +4,18 @@ import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ExternalLink, Github, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Project, ProjectCategory, portfolioContent } from '@/content/content';
+import type { Project, ProjectCategory } from '@/content/content';
 import { cn } from '@/lib/cn';
 import SectionHeading from './SectionHeading';
 
 type FilterOption = 'All' | ProjectCategory;
 
-export default function Projects() {
+interface ProjectsProps {
+  projects: Project[];
+  projectCategories: ProjectCategory[];
+}
+
+export default function Projects({ projects, projectCategories }: ProjectsProps) {
   const reducedMotion = useReducedMotion();
   const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -26,8 +31,8 @@ export default function Projects() {
   const revealInitial = reducedMotion ? false : { opacity: 0, y: 28 };
 
   const filters = useMemo<FilterOption[]>(
-    () => ['All', ...portfolioContent.projectCategories],
-    []
+    () => ['All', ...projectCategories],
+    [projectCategories]
   );
 
   useEffect(() => {
@@ -71,8 +76,8 @@ export default function Projects() {
   }, []);
 
   const allProjects = useMemo(
-    () => [...githubProjects, ...portfolioContent.projects],
-    [githubProjects]
+    () => [...githubProjects, ...projects],
+    [githubProjects, projects]
   );
 
   const filteredProjects =

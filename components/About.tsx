@@ -1,9 +1,13 @@
-import { portfolioContent } from '@/content/content';
+import type { PortfolioContent } from '@/content/content';
 import Reveal from './motion/Reveal';
 import SectionHeading from './SectionHeading';
 
-export default function About() {
-  const { about, dataStatus } = portfolioContent;
+interface AboutProps {
+  about: PortfolioContent['about'];
+  dataStatus: PortfolioContent['dataStatus'];
+}
+
+export default function About({ about, dataStatus }: AboutProps) {
 
   return (
     <section id="about" className="section-shell">

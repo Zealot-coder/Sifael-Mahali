@@ -1,8 +1,13 @@
-import { portfolioContent } from '@/content/content';
+import type { PortfolioContent } from '@/content/content';
 import Reveal from './motion/Reveal';
 import SectionHeading from './SectionHeading';
 
-export default function Experience() {
+interface ExperienceProps {
+  experience: PortfolioContent['experience'];
+  education: PortfolioContent['education'];
+}
+
+export default function Experience({ experience, education }: ExperienceProps) {
   return (
     <section id="experience" className="section-shell">
       <Reveal>
@@ -18,7 +23,7 @@ export default function Experience() {
           <article className="glass-card p-6 sm:p-8">
             <h3 className="font-display text-xl font-semibold text-text">Experience</h3>
             <ol className="mt-6 space-y-6 border-l border-line/50 pl-5">
-              {portfolioContent.experience.map((item) => (
+              {experience.map((item) => (
                 <li key={item.id} className="relative">
                   <span className="absolute -left-[27px] top-1.5 h-3 w-3 rounded-full border border-brand/60 bg-bg" />
                   <p className="text-xs uppercase tracking-[0.14em] text-accent">
@@ -55,20 +60,20 @@ export default function Experience() {
           <article className="glass-card p-6 sm:p-8">
             <h3 className="font-display text-xl font-semibold text-text">Education</h3>
             <ol className="mt-6 space-y-6 border-l border-line/50 pl-5">
-              {portfolioContent.education.map((item) => (
+              {education.map((item) => (
                 <li key={item.id} className="relative">
                   <span className="absolute -left-[27px] top-1.5 h-3 w-3 rounded-full border border-accent/70 bg-bg" />
-                <p className="text-xs uppercase tracking-[0.14em] text-accent">
-                  {item.start} - {item.end}
-                </p>
-                <h4 className="mt-1 text-base font-semibold text-text">{item.degree}</h4>
-                <p className="text-sm text-muted">{item.institution}</p>
-                {item.fieldOfStudy ? (
-                  <p className="text-sm text-muted">Field: {item.fieldOfStudy}</p>
-                ) : null}
-                <p className="mt-2 text-sm text-muted">{item.notes}</p>
-              </li>
-            ))}
+                  <p className="text-xs uppercase tracking-[0.14em] text-accent">
+                    {item.start} - {item.end}
+                  </p>
+                  <h4 className="mt-1 text-base font-semibold text-text">{item.degree}</h4>
+                  <p className="text-sm text-muted">{item.institution}</p>
+                  {item.fieldOfStudy ? (
+                    <p className="text-sm text-muted">Field: {item.fieldOfStudy}</p>
+                  ) : null}
+                  <p className="mt-2 text-sm text-muted">{item.notes}</p>
+                </li>
+              ))}
             </ol>
           </article>
         </div>

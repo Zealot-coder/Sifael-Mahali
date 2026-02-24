@@ -1,7 +1,14 @@
-import { portfolioContent } from '@/content/content';
+import type { PortfolioContent } from '@/content/content';
 import Reveal from './motion/Reveal';
 
-export default function Footer() {
+interface FooterProps {
+  footer: PortfolioContent['footer'];
+  contact: PortfolioContent['contact'];
+  navigation: PortfolioContent['navigation'];
+  site: PortfolioContent['site'];
+}
+
+export default function Footer({ footer, contact, navigation, site }: FooterProps) {
   const year = new Date().getFullYear();
 
   return (
@@ -11,20 +18,20 @@ export default function Footer() {
           <div className="grid gap-10 md:grid-cols-2">
             <div className="space-y-4 text-sm uppercase tracking-[0.12em] text-muted">
               <p>
-                {portfolioContent.footer.location}
+                {footer.location}
                 <br />
-                {portfolioContent.footer.timezone}
+                {footer.timezone}
               </p>
               <a
-                href={`mailto:${portfolioContent.contact.email}`}
+                href={`mailto:${contact.email}`}
                 className="inline-block text-text transition hover:text-brand"
               >
-                {portfolioContent.contact.email}
+                {contact.email}
               </a>
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-right text-sm font-semibold uppercase tracking-[0.12em]">
-              {portfolioContent.navigation.map((item) => (
+              {navigation.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
@@ -37,14 +44,14 @@ export default function Footer() {
           </div>
 
           <div className="mt-8 border-t border-line/50 py-5 text-xs uppercase tracking-[0.16em] text-muted">
-            Copyright {year} {portfolioContent.site.name}. All rights reserved.
+            Copyright {year} {site.name}. All rights reserved.
           </div>
         </div>
       </Reveal>
 
       <Reveal delay={0.08}>
         <p className="pointer-events-none select-none overflow-hidden font-display text-[15vw] font-semibold uppercase leading-[0.75] tracking-[-0.05em] text-brand/30 sm:text-[11vw]">
-          {portfolioContent.site.name}
+          {site.name}
         </p>
       </Reveal>
     </footer>

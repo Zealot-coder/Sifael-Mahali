@@ -20,3 +20,10 @@ Interactive, SEO-ready Next.js portfolio with motion, a lightweight 3D hero, and
 - For pinned GitHub repositories via GraphQL, set:
   - `GITHUB_USERNAME` (default: `Zealot-coder`)
   - `GITHUB_TOKEN` (GitHub personal access token with read access)
+- Owner dashboard is available at `/owner` with full JSON CRUD editing.
+- Set `OWNER_PASSWORD` to enable owner login.
+- Set `OWNER_SESSION_SECRET` for stronger session signing in production.
+- Content persistence mode:
+  - `KV_REST_API_URL` + `KV_REST_API_TOKEN` configured: persistent Vercel KV mode.
+  - No KV variables: local file mode (`content/portfolio-content.local.json`, local/dev only).
+- `content/portfolio-content.local.json` is gitignored and created automatically after first save in owner dashboard.

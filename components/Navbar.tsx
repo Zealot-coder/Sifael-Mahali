@@ -3,9 +3,15 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Menu, Moon, Sun, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { portfolioContent } from '@/content/content';
+import type { PortfolioContent } from '@/content/content';
 import { cn } from '@/lib/cn';
 import { useActiveSection } from '@/lib/use-active-section';
+
+interface NavbarProps {
+  navigation: PortfolioContent['navigation'];
+  contact: PortfolioContent['contact'];
+  siteName: string;
+}
 
 function ThemeToggle({ className }: { className?: string }) {
   const [isLight, setIsLight] = useState(false);
@@ -60,8 +66,9 @@ const menuItemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.56, ease: [0.22, 1, 0.36, 1] } }
 };
 
-export default function Navbar() {
-  const links = portfolioContent.navigation;
+export default function Navbar({ navigation, contact, siteName }: NavbarProps) {
+  const links = navigation;
+  const primarySocial = contact.socials[0];
   const sectionIds = useMemo(
     () => links.map((item) => item.href.replace('#', '')),
     [links]
@@ -117,7 +124,7 @@ export default function Navbar() {
             className="text-sm font-semibold uppercase tracking-[0.12em] text-text transition hover:text-brand"
             aria-label="Go to top"
           >
-            Sifael Mahali
+            {siteName}
           </a>
 
           <div className="absolute left-1/2 top-[14px] -translate-x-1/2 sm:top-[19px]">
@@ -236,19 +243,21 @@ export default function Navbar() {
                 transition={{ delay: reduceMotion ? 0 : 0.18, duration: 0.45 }}
               >
                 <a
-                  href={`mailto:${portfolioContent.contact.email}`}
+                  href={`mailto:${contact.email}`}
                   className="transition hover:text-brand"
                 >
-                  {portfolioContent.contact.email}
+                  {contact.email}
                 </a>
-                <a
-                  href={portfolioContent.contact.socials[0]?.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="transition hover:text-brand"
-                >
-                  LinkedIn
-                </a>
+                {primarySocial?.url ? (
+                  <a
+                    href={primarySocial.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition hover:text-brand"
+                  >
+                    {primarySocial.label}
+                  </a>
+                ) : null}
               </motion.div>
             </div>
           </motion.div>
