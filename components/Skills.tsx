@@ -48,7 +48,8 @@ export default function Skills() {
             <ul className="mt-4 space-y-3 text-sm text-muted">
               {portfolioContent.certifications.map((cert) => (
                 <li key={cert.name} className="rounded-xl border border-line/40 bg-surfaceAlt/40 p-3">
-                  {cert.name} | {cert.issuer} | {cert.year}
+                  {cert.name} | {cert.issuer} | {cert.issueDate}
+                  {cert.credentialId ? ` | Credential ID: ${cert.credentialId}` : ''}
                 </li>
               ))}
             </ul>

@@ -10,6 +10,9 @@ export interface Project {
   githubUrl: string;
   liveUrl: string;
   screenshots: string[];
+  source?: 'manual' | 'github';
+  stars?: number;
+  updatedAt?: string;
   isPlaceholder?: boolean;
 }
 
@@ -17,15 +20,20 @@ export interface ExperienceItem {
   id: string;
   organization: string;
   role: string;
+  employmentType?: string;
+  location?: string;
+  locationType?: string;
   start: string;
   end: string;
   achievements: string[];
+  skillsUsed?: string[];
 }
 
 export interface EducationItem {
   id: string;
   institution: string;
   degree: string;
+  fieldOfStudy?: string;
   start: string;
   end: string;
   notes: string;
@@ -44,7 +52,8 @@ export interface SkillGroup {
 export interface CertificationItem {
   name: string;
   issuer: string;
-  year: string;
+  issueDate: string;
+  credentialId?: string;
 }
 
 export interface PortfolioContent {
@@ -52,6 +61,7 @@ export interface PortfolioContent {
     name: string;
     title: string;
     description: string;
+    keywords: string[];
   };
   dataStatus: {
     source: string;
@@ -91,15 +101,28 @@ export interface PortfolioContent {
 export const portfolioContent: PortfolioContent = {
   site: {
     name: 'SIFAEL MAHALI',
-    title: 'Sifael Mahali | Software Engineer and Cybersecurity Enthusiast',
+    title: 'Sifael Mahali | Cybersecurity | CTF Player | Networking Enthusiast',
     description:
-      'Modern interactive portfolio for Sifael Mahali focused on software engineering, security-minded development, and clean digital experiences.'
+      'Cybersecurity-focused Software Engineering student specializing in CTF challenges, penetration testing, digital forensics, and network security.',
+    keywords: [
+      'Sifael Mahali',
+      'Cybersecurity Student',
+      'Penetration Tester',
+      'Digital Forensics',
+      'Network Security Analyst',
+      'CTF Player',
+      'Incident Response',
+      'Security Architecture',
+      'Threat Detection',
+      'Vulnerability Assessment',
+      'Secure Systems Engineering'
+    ]
   },
   dataStatus: {
-    source: 'LinkedIn',
+    source: 'LinkedIn Export (User Provided)',
     linkedInUrl: 'https://www.linkedin.com/in/sifael-mahali-166447311/',
     note:
-      'LinkedIn scraping was blocked during generation. Replace placeholders with exact LinkedIn About, Experience, Projects, and Skills text.'
+      'Profile data was imported from your provided LinkedIn export on February 24, 2026.'
   },
   navigation: [
     { label: 'Home', href: '#home' },
@@ -111,158 +134,248 @@ export const portfolioContent: PortfolioContent = {
   ],
   hero: {
     name: 'SIFAEL MAHALI',
-    tagline: 'Software Engineer | Cybersecurity Enthusiast',
+    tagline: 'Cybersecurity | CTF Player | Networking Enthusiast',
     description:
-      'I design and build high-performance applications with secure architecture, modern UX, and practical engineering discipline.',
-    availability: 'Open to software engineering opportunities',
+      'Cybersecurity-focused Software Engineering student with hands-on experience in CTFs, penetration testing, digital forensics, and secure systems architecture.',
+    availability: 'Open to cybersecurity and software engineering opportunities',
     primaryCta: { label: 'View Projects', href: '#projects' },
     secondaryCta: { label: 'Download CV', href: '/cv/sifael-mahali-cv.pdf' }
   },
   about: {
-    bio: '(Paste LinkedIn About summary here.)',
+    bio:
+      'Cybersecurity-focused Software Engineering student with hands-on experience in Capture The Flag (CTF) challenges, penetration testing, digital forensics, and network security. Strong foundation in secure systems architecture, incident response, and operating system security. Passionate about offensive security, threat detection, and continuous technical growth.',
     highlights: [
-      'Security-first mindset: building with secure defaults from day one.',
-      'Performance-aware engineering: fast interfaces and efficient services.',
-      'Product thinking: balancing user value with technical rigor.',
-      'Continuous learner across software engineering and cybersecurity.',
-      'Clear communication and collaborative problem solving.'
+      'Built depth through the IBM cybersecurity learning track across architecture, compliance, cryptography, and forensics.',
+      'Applies offensive security thinking through CTF workflows and practical vulnerability analysis.',
+      'Combines software engineering and security to build secure-by-design systems.',
+      'Active in cybersecurity community learning and collaborative technical practice.',
+      'Internship impact metrics available soon (add quantified outcomes from Amcet Innovation Hub).'
     ],
     techStack: [
-      'TypeScript',
-      'Next.js',
-      'React',
-      'Node.js',
-      'Express',
-      'PostgreSQL',
-      'Prisma',
-      'Docker',
+      'Python',
+      'Java',
+      'C++',
+      'PHP',
+      'Spring Boot',
+      'Angular',
       'Linux',
-      'OWASP',
-      'Burp Suite',
-      'Wireshark'
+      'Network Security',
+      'Penetration Testing',
+      'Digital Forensics',
+      'Incident Response',
+      'OSINT'
     ]
   },
-  projectCategories: ['Web', 'Security', 'Mobile', 'AI'],
+  projectCategories: ['Security', 'Web', 'AI', 'Mobile'],
   projects: [
     {
-      id: 'p1',
-      title: '(Add LinkedIn Project Title #1)',
-      shortDescription: '(Add short project summary from LinkedIn.)',
+      id: 'manual-ctf',
+      title: 'CTF Labs and Exploitation Writeups',
+      shortDescription:
+        'Hands-on CTF challenge solving across web exploitation, enumeration, privilege escalation, and forensic analysis.',
       longDescription:
-        '(Add full project details, problem solved, your role, and outcomes.)',
+        'Case-study project slot for documenting CTF paths, methodology, tooling, and post-exploitation lessons learned. Add challenge links, metrics, and screenshots.',
+      categories: ['Security'],
+      stack: ['Python', 'Linux', 'Wireshark', 'Burp Suite'],
+      githubUrl: '',
+      liveUrl: '',
+      screenshots: [
+        'https://placehold.co/1200x675/140b06/f44e00?text=Add+CTF+Screenshot+1',
+        'https://placehold.co/1200x675/140b06/f44e00?text=Add+CTF+Screenshot+2'
+      ],
+      source: 'manual',
+      isPlaceholder: true
+    },
+    {
+      id: 'manual-network',
+      title: 'Network Security Monitoring Lab',
+      shortDescription:
+        'Practical network security lab focused on attack detection, log analysis, and response workflow hardening.',
+      longDescription:
+        'Case-study slot for packet analysis, baseline network behavior, anomaly detection, and incident handling playbooks. Add measurable outcomes.',
+      categories: ['Security', 'Web'],
+      stack: ['Network Security', 'SIEM', 'Linux', 'Threat Detection'],
+      githubUrl: '',
+      liveUrl: '',
+      screenshots: [
+        'https://placehold.co/1200x675/140b06/ff8c29?text=Add+Network+Lab+Screenshot+1',
+        'https://placehold.co/1200x675/140b06/ff8c29?text=Add+Network+Lab+Screenshot+2'
+      ],
+      source: 'manual',
+      isPlaceholder: true
+    },
+    {
+      id: 'manual-secure-app',
+      title: 'Secure App Hardening Playbook',
+      shortDescription:
+        'Secure coding and application hardening workflow for backend and web systems.',
+      longDescription:
+        'Case-study slot for documenting threat modeling, security controls, authentication design, and remediation process. Add before/after security findings.',
       categories: ['Web', 'Security'],
-      stack: ['Next.js', 'TypeScript', 'Tailwind', 'Node.js'],
+      stack: ['Java', 'Spring Boot', 'Angular', 'Application Security'],
       githubUrl: '',
       liveUrl: '',
       screenshots: [
-        'https://placehold.co/1200x675/090e1f/7fa2ff?text=Add+Screenshot+1',
-        'https://placehold.co/1200x675/090e1f/7fa2ff?text=Add+Screenshot+2'
+        'https://placehold.co/1200x675/140b06/fd9f45?text=Add+Hardening+Screenshot+1',
+        'https://placehold.co/1200x675/140b06/fd9f45?text=Add+Hardening+Screenshot+2'
       ],
-      isPlaceholder: true
-    },
-    {
-      id: 'p2',
-      title: '(Add LinkedIn Project Title #2)',
-      shortDescription: '(Add short project summary from LinkedIn.)',
-      longDescription:
-        '(Add architecture, key security controls, and measurable impact.)',
-      categories: ['Security', 'AI'],
-      stack: ['Python', 'FastAPI', 'PostgreSQL', 'Docker'],
-      githubUrl: '',
-      liveUrl: '',
-      screenshots: [
-        'https://placehold.co/1200x675/090e1f/39d0c9?text=Add+Screenshot+1',
-        'https://placehold.co/1200x675/090e1f/39d0c9?text=Add+Screenshot+2'
-      ],
-      isPlaceholder: true
-    },
-    {
-      id: 'p3',
-      title: '(Add LinkedIn Project Title #3)',
-      shortDescription: '(Add short project summary from LinkedIn.)',
-      longDescription:
-        '(Add mobile or web details, your responsibilities, and outcomes.)',
-      categories: ['Mobile', 'Web'],
-      stack: ['React Native', 'Firebase', 'TypeScript'],
-      githubUrl: '',
-      liveUrl: '',
-      screenshots: [
-        'https://placehold.co/1200x675/090e1f/c7f36b?text=Add+Screenshot+1',
-        'https://placehold.co/1200x675/090e1f/c7f36b?text=Add+Screenshot+2'
-      ],
+      source: 'manual',
       isPlaceholder: true
     }
   ],
   experience: [
     {
-      id: 'e1',
-      organization: '(Add organization from LinkedIn)',
-      role: '(Add role title)',
-      start: '(Add start month/year)',
-      end: '(Add end month/year or Present)',
+      id: 'exp-amcet',
+      organization: 'Amcet Innovation Hub',
+      role: 'Cybersecurity Intern',
+      employmentType: 'Internship',
+      location: 'Ally Sykes Road, Mbezi Beach, Dar es Salaam',
+      locationType: 'On-site',
+      start: 'July 2025',
+      end: 'Present',
       achievements: [
-        '(Add measurable achievement #1)',
-        '(Add measurable achievement #2)',
-        '(Add measurable achievement #3)'
-      ]
-    },
-    {
-      id: 'e2',
-      organization: '(Add organization from LinkedIn)',
-      role: '(Add role title)',
-      start: '(Add start month/year)',
-      end: '(Add end month/year or Present)',
-      achievements: [
-        '(Add measurable achievement #1)',
-        '(Add measurable achievement #2)'
-      ]
+        'Worked in an on-site engineering/security environment on cybersecurity and secure software tasks.',
+        'Contributed to Java Spring Boot and Angular workflows with a focus on secure implementation.',
+        'Supported network security and cyber defense-related activities during internship execution.'
+      ],
+      skillsUsed: ['Java', 'Spring Boot', 'Angular', 'Cybersecurity', 'Network Security']
     }
   ],
   education: [
     {
-      id: 'ed1',
-      institution: '(Add university or college from LinkedIn)',
-      degree: '(Add degree or program)',
-      start: '(Add start year)',
-      end: '(Add end year)',
-      notes: '(Add honors, key coursework, or relevant activities.)'
+      id: 'edu-udom',
+      institution: 'University of Dodoma',
+      degree: "Bachelor's Degree",
+      fieldOfStudy: 'Software Engineering',
+      start: 'November 2023',
+      end: 'November 2027 (Expected)',
+      notes:
+        'Academic focus on software engineering fundamentals with applied cybersecurity learning and practical labs.'
     }
   ],
   skills: [
     {
-      category: 'Frontend',
+      category: 'Programming',
       items: [
-        { name: 'React / Next.js', level: 82 },
-        { name: 'TypeScript', level: 80 },
-        { name: 'Tailwind CSS', level: 78 }
+        { name: 'Python', level: 82 },
+        { name: 'Java', level: 78 },
+        { name: 'C++', level: 70 },
+        { name: 'PHP', level: 68 },
+        { name: 'Spring Boot', level: 74 },
+        { name: 'Angular', level: 70 }
       ]
     },
     {
-      category: 'Backend',
+      category: 'Cybersecurity',
       items: [
-        { name: 'Node.js', level: 76 },
-        { name: 'REST APIs', level: 78 },
-        { name: 'SQL / PostgreSQL', level: 72 }
+        { name: 'Penetration Testing', level: 82 },
+        { name: 'Vulnerability Assessment', level: 80 },
+        { name: 'Digital Forensics', level: 78 },
+        { name: 'Incident Response', level: 77 },
+        { name: 'Threat Detection', level: 76 },
+        { name: 'Cryptography', level: 72 },
+        { name: 'IAM / GRC / OSINT', level: 70 }
       ]
     },
     {
-      category: 'Security',
+      category: 'Systems',
       items: [
-        { name: 'Secure Coding Practices', level: 80 },
-        { name: 'OWASP Concepts', level: 74 },
-        { name: 'Vulnerability Testing', level: 70 }
+        { name: 'Linux', level: 80 },
+        { name: 'Windows', level: 75 },
+        { name: 'macOS', level: 70 },
+        { name: 'Active Directory', level: 68 },
+        { name: 'OS Administration', level: 76 },
+        { name: 'Virtualization', level: 66 }
       ]
     },
     {
-      category: 'Tools',
+      category: 'Networking',
       items: [
-        { name: 'Git and GitHub', level: 84 },
-        { name: 'Docker', level: 68 },
-        { name: 'Linux CLI', level: 77 }
+        { name: 'Network Security', level: 80 },
+        { name: 'SIEM Concepts', level: 72 },
+        { name: 'VoIP / IP PBX', level: 70 },
+        { name: 'Asterisk', level: 68 },
+        { name: 'SIP Protocol', level: 69 }
       ]
     }
   ],
-  certifications: [],
+  certifications: [
+    {
+      name: 'Cybersecurity Case Studies and Capstone Project',
+      issuer: 'IBM',
+      issueDate: 'February 2026',
+      credentialId: '9KZF4WS7M2T7'
+    },
+    {
+      name: 'Penetration Testing, Threat Hunting, and Cryptography',
+      issuer: 'IBM',
+      issueDate: 'January 2026',
+      credentialId: 'P8KMZ3QW6K6T'
+    },
+    {
+      name: 'Cybersecurity Compliance Framework, Standards & Regulations',
+      issuer: 'IBM',
+      issueDate: 'December 2025',
+      credentialId: 'Q38POODH5LR4'
+    },
+    {
+      name: 'Cybersecurity Architecture',
+      issuer: 'IBM',
+      issueDate: 'October 2025',
+      credentialId: 'BSAIZ70A89N6'
+    },
+    {
+      name: 'Database Essentials and Vulnerabilities',
+      issuer: 'IBM',
+      issueDate: 'March 2025',
+      credentialId: 'KJZJ68ONLIJ1'
+    },
+    {
+      name: 'Computer Networks and Network Security',
+      issuer: 'IBM',
+      issueDate: 'March 2025',
+      credentialId: 'HHB49QCJ8FIY'
+    },
+    {
+      name: 'Operating Systems: Overview, Administration, and Security',
+      issuer: 'IBM',
+      issueDate: 'March 2025',
+      credentialId: '3LJ6OY6MYXN0'
+    },
+    {
+      name: 'Introduction to Cybersecurity Tools & Cyberattacks',
+      issuer: 'IBM',
+      issueDate: 'January 2025',
+      credentialId: 'JHJFSD5PBTGY'
+    },
+    {
+      name: 'Incident Response and Digital Forensics',
+      issuer: 'IBM',
+      issueDate: 'January 2025'
+    },
+    {
+      name: 'Introduction to Cybersecurity Essentials',
+      issuer: 'IBM',
+      issueDate: 'December 2024',
+      credentialId: 'VRBJJLRKXJ0L'
+    },
+    {
+      name: 'Introduction to Cybersecurity Careers',
+      issuer: 'IBM',
+      issueDate: 'December 2024',
+      credentialId: 'CIO1E8A6IWHD'
+    },
+    {
+      name: 'CompletePBX Certified',
+      issuer: 'Xorcom',
+      issueDate: 'August 2024'
+    },
+    {
+      name: 'Certificate of Participation',
+      issuer: 'H4K-IT Cybersecurity Community',
+      issueDate: 'August 2025'
+    }
+  ],
   contact: {
     email: 'mahalisifael@gmail.com',
     socials: [
@@ -273,13 +386,13 @@ export const portfolioContent: PortfolioContent = {
       },
       {
         label: 'GitHub',
-        url: 'https://github.com/(add-your-username)',
-        handle: '(Add your GitHub)'
+        url: 'https://github.com/Zealot-coder/',
+        handle: '@Zealot-coder'
       }
     ]
   },
   footer: {
-    location: '(Add your location)',
-    timezone: '(Add your timezone)'
+    location: 'Dar es Salaam, Tanzania',
+    timezone: 'EAT (UTC+03:00)'
   }
 };

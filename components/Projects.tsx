@@ -9,11 +9,80 @@ import { cn } from '@/lib/cn';
 import SectionHeading from './SectionHeading';
 
 type FilterOption = 'All' | ProjectCategory;
+type GitHubRepo = {
+  id: number;
+  name: string;
+  description: string | null;
+  html_url: string;
+  homepage: string | null;
+  language: string | null;
+  topics?: string[];
+  stargazers_count: number;
+  updated_at: string;
+  archived: boolean;
+  fork: boolean;
+};
+
+const SECURITY_TERMS = [
+  'security',
+  'cyber',
+  'ctf',
+  'forensic',
+  'threat',
+  'pentest',
+  'vulnerability',
+  'incident',
+  'network',
+  'siem',
+  'osint'
+];
+
+const BACKEND_TERMS = [
+  'api',
+  'backend',
+  'server',
+  'spring',
+  'java',
+  'node',
+  'python',
+  'auth',
+  'database'
+];
+
+function includesAny(text: string, terms: string[]) {
+  return terms.some((term) => text.includes(term));
+}
+
+function repoCategories(repo: GitHubRepo): ProjectCategory[] {
+  const haystack =
+    `${repo.name} ${repo.description ?? ''} ${(repo.topics ?? []).join(' ')}`.toLowerCase();
+  const categories: ProjectCategory[] = [];
+
+  if (includesAny(haystack, SECURITY_TERMS)) categories.push('Security');
+  if (includesAny(haystack, ['ai', 'ml', 'llm', 'neural'])) categories.push('AI');
+  if (includesAny(haystack, ['mobile', 'android', 'ios', 'react-native', 'flutter']))
+    categories.push('Mobile');
+  if (categories.length === 0 || includesAny(haystack, BACKEND_TERMS))
+    categories.push('Web');
+
+  return [...new Set(categories)];
+}
+
+function repoScore(repo: GitHubRepo) {
+  const haystack =
+    `${repo.name} ${repo.description ?? ''} ${(repo.topics ?? []).join(' ')}`.toLowerCase();
+  let score = 0;
+  if (includesAny(haystack, SECURITY_TERMS)) score += 40;
+  if (includesAny(haystack, BACKEND_TERMS)) score += 25;
+  score += Math.min(20, repo.stargazers_count * 2);
+  return score;
+}
 
 export default function Projects() {
   const reducedMotion = useReducedMotion();
   const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [githubProjects, setGithubProjects] = useState<Project[]>([]);
   const revealInitial = reducedMotion ? false : { opacity: 0, y: 28 };
 
   const filters = useMemo<FilterOption[]>(
@@ -21,12 +90,86 @@ export default function Projects() {
     []
   );
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadGitHubProjects = async () => {
+      try {
+        const response = await fetch(
+          'https://api.github.com/users/Zealot-coder/repos?per_page=100&sort=updated',
+          {
+            signal: controller.signal,
+            headers: {
+              Accept: 'application/vnd.github+json'
+            }
+          }
+        );
+
+        if (!response.ok) return;
+
+        const repositories = (await response.json()) as GitHubRepo[];
+
+        const mapped = repositories
+          .filter((repo) => !repo.fork && !repo.archived)
+          .sort((a, b) => repoScore(b) - repoScore(a))
+          .slice(0, 8)
+          .map((repo) => {
+            const categories = repoCategories(repo);
+            const stack = [
+              repo.language ?? '',
+              ...(repo.topics ?? []).slice(0, 4),
+              'GitHub API'
+            ].filter(Boolean);
+            const title = repo.name.replace(/[-_]/g, ' ');
+            const lastUpdated = new Date(repo.updated_at).toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short'
+            });
+            const imageText = encodeURIComponent(repo.name);
+
+            return {
+              id: `gh-${repo.id}`,
+              title: title.replace(/\b\w/g, (char) => char.toUpperCase()),
+              shortDescription:
+                repo.description ??
+                'GitHub repository imported dynamically. Add extended case-study context.',
+              longDescription: `${
+                repo.description ??
+                'Repository imported dynamically from GitHub. Add architecture notes, security decisions, and outcomes.'
+              }\n\nStars: ${repo.stargazers_count} • Last Updated: ${lastUpdated}`,
+              categories,
+              stack: [...new Set(stack)].slice(0, 5),
+              githubUrl: repo.html_url,
+              liveUrl: repo.homepage ?? '',
+              screenshots: [
+                `https://placehold.co/1200x675/140b06/f44e00?text=${imageText}`,
+                `https://placehold.co/1200x675/140b06/ff8c29?text=${imageText}+Preview`
+              ],
+              source: 'github' as const,
+              stars: repo.stargazers_count,
+              updatedAt: lastUpdated
+            };
+          });
+
+        setGithubProjects(mapped);
+      } catch {
+        // Silent fallback: component already has manual projects.
+      }
+    };
+
+    void loadGitHubProjects();
+    return () => controller.abort();
+  }, []);
+
+  const allProjects = useMemo(
+    () => [...githubProjects, ...portfolioContent.projects],
+    [githubProjects]
+  );
+
   const filteredProjects =
     activeFilter === 'All'
-      ? portfolioContent.projects
-      : portfolioContent.projects.filter((project) =>
-          project.categories.includes(activeFilter)
-        );
+      ? allProjects
+      : allProjects.filter((project) => project.categories.includes(activeFilter));
 
   useEffect(() => {
     if (!selectedProject) return;
@@ -119,6 +262,11 @@ export default function Projects() {
                 {project.categories.join(' | ')}
               </p>
               <div className="flex flex-wrap justify-end gap-2">
+                {project.source === 'github' ? (
+                  <span className="rounded-md border border-brand/50 bg-brand/15 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand backdrop-blur-sm">
+                    GitHub Live
+                  </span>
+                ) : null}
                 {project.stack.slice(0, 3).map((tech) => (
                   <span
                     key={`${project.id}-${tech}`}
@@ -190,6 +338,13 @@ export default function Projects() {
               {selectedProject.isPlaceholder ? (
                 <p className="mt-3 rounded-xl border border-brand/40 bg-brand/10 px-3 py-2 text-xs text-brand">
                   Placeholder project. Replace with exact LinkedIn or GitHub project data.
+                </p>
+              ) : null}
+
+              {selectedProject.source === 'github' ? (
+                <p className="mt-3 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-xs text-accent">
+                  Synced from GitHub API. Stars: {selectedProject.stars ?? 0}
+                  {selectedProject.updatedAt ? ` | Updated: ${selectedProject.updatedAt}` : ''}
                 </p>
               ) : null}
 

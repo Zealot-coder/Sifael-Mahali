@@ -27,13 +27,7 @@ export const metadata: Metadata = {
     template: '%s | Sifael Mahali'
   },
   description: portfolioContent.site.description,
-  keywords: [
-    'Sifael Mahali',
-    'Software Engineer',
-    'Cybersecurity',
-    'Next.js Portfolio',
-    'Full Stack Developer'
-  ],
+  keywords: portfolioContent.site.keywords,
   openGraph: {
     type: 'website',
     url: siteUrl,
