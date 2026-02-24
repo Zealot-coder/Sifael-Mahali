@@ -1,0 +1,227 @@
+'use client';
+
+import Image from 'next/image';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ExternalLink, Github, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Project, ProjectCategory, portfolioContent } from '@/content/content';
+import { cn } from '@/lib/cn';
+import SectionHeading from './SectionHeading';
+
+type FilterOption = 'All' | ProjectCategory;
+
+export default function Projects() {
+  const reducedMotion = useReducedMotion();
+  const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  const filters = useMemo<FilterOption[]>(
+    () => ['All', ...portfolioContent.projectCategories],
+    []
+  );
+
+  const filteredProjects =
+    activeFilter === 'All'
+      ? portfolioContent.projects
+      : portfolioContent.projects.filter((project) =>
+          project.categories.includes(activeFilter)
+        );
+
+  useEffect(() => {
+    if (!selectedProject) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedProject(null);
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [selectedProject]);
+
+  return (
+    <section id="projects" className="section-shell">
+      <SectionHeading
+        eyebrow="Projects"
+        title="Recent builds and security-driven experiments"
+        description="Filter by domain, then open a card to view details, stack, and media placeholders."
+      />
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        {filters.map((filter) => {
+          const isActive = activeFilter === filter;
+          return (
+            <button
+              key={filter}
+              type="button"
+              onClick={() => setActiveFilter(filter)}
+              className={cn(
+                'rounded-xl border px-4 py-2 text-sm font-medium transition',
+                isActive
+                  ? 'border-brand/60 bg-brand/20 text-brand'
+                  : 'border-line/50 bg-surfaceAlt/50 text-muted hover:border-brand/40 hover:text-text'
+              )}
+            >
+              {filter}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {filteredProjects.map((project) => (
+          <button
+            key={project.id}
+            type="button"
+            onClick={() => setSelectedProject(project)}
+            className="group overflow-hidden rounded-2xl border border-line/40 bg-surface/80 text-left shadow-glow transition hover:-translate-y-1 hover:border-brand/60"
+          >
+            <div className="relative aspect-[16/9] overflow-hidden">
+              <Image
+                src={project.screenshots[0]}
+                alt={`${project.title} preview`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg/85 via-bg/10 to-transparent" />
+            </div>
+
+            <div className="p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                {project.categories.join(' | ')}
+              </p>
+              <h3 className="mt-2 font-display text-xl font-semibold text-text">
+                {project.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                {project.shortDescription}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {project.stack.slice(0, 4).map((tech) => (
+                  <span key={`${project.id}-${tech}`} className="pill">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {selectedProject ? (
+          <motion.div
+            className="fixed inset-0 z-[80]"
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reducedMotion ? {} : { opacity: 0 }}
+          >
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+              aria-label="Close project details"
+              onClick={() => setSelectedProject(null)}
+            />
+            <motion.article
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="project-title"
+              className="absolute left-1/2 top-1/2 max-h-[88vh] w-[min(980px,92vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-line/40 bg-surface p-6 shadow-glow sm:p-8"
+              initial={reducedMotion ? false : { opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={reducedMotion ? {} : { opacity: 0, y: 20, scale: 0.98 }}
+              transition={{ duration: 0.25 }}
+            >
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                    {selectedProject.categories.join(' | ')}
+                  </p>
+                  <h3 id="project-title" className="mt-2 font-display text-2xl font-semibold text-text">
+                    {selectedProject.title}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedProject(null)}
+                  className="rounded-xl border border-line/50 bg-surfaceAlt/70 p-2 text-muted transition hover:border-brand/60 hover:text-text"
+                  aria-label="Close modal"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <p className="text-sm leading-relaxed text-muted">{selectedProject.longDescription}</p>
+
+              {selectedProject.isPlaceholder ? (
+                <p className="mt-3 rounded-xl border border-brand/40 bg-brand/10 px-3 py-2 text-xs text-brand">
+                  Placeholder project. Replace with exact LinkedIn or GitHub project data.
+                </p>
+              ) : null}
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                {selectedProject.stack.map((tech) => (
+                  <span key={`${selectedProject.id}-modal-${tech}`} className="pill">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                {selectedProject.githubUrl ? (
+                  <a
+                    href={selectedProject.githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-line/50 bg-surfaceAlt/70 px-4 py-2 text-sm font-medium text-text transition hover:border-brand/60 hover:text-brand"
+                  >
+                    <Github size={16} />
+                    GitHub
+                  </a>
+                ) : (
+                  <span className="pill">Add your GitHub link here</span>
+                )}
+
+                {selectedProject.liveUrl ? (
+                  <a
+                    href={selectedProject.liveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-line/50 bg-surfaceAlt/70 px-4 py-2 text-sm font-medium text-text transition hover:border-brand/60 hover:text-brand"
+                  >
+                    <ExternalLink size={16} />
+                    Live Demo
+                  </a>
+                ) : (
+                  <span className="pill">Add live link here</span>
+                )}
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {selectedProject.screenshots.map((shot, idx) => (
+                  <div
+                    key={`${selectedProject.id}-shot-${idx}`}
+                    className="relative aspect-video overflow-hidden rounded-xl border border-line/40 bg-surfaceAlt/50"
+                  >
+                    <Image
+                      src={shot}
+                      alt={`${selectedProject.title} screenshot ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </motion.article>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </section>
+  );
+}
