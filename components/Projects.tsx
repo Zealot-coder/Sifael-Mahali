@@ -14,6 +14,7 @@ export default function Projects() {
   const reducedMotion = useReducedMotion();
   const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const revealInitial = reducedMotion ? false : { opacity: 0, y: 28 };
 
   const filters = useMemo<FilterOption[]>(
     () => ['All', ...portfolioContent.projectCategories],
@@ -45,13 +46,26 @@ export default function Projects() {
 
   return (
     <section id="projects" className="section-shell">
-      <SectionHeading
-        eyebrow="Projects"
-        title="Recent Builds And Security-Driven Experiments"
-        description="Filter by domain, then open a card to view details, stack, and media placeholders."
-      />
+      <motion.div
+        initial={revealInitial}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <SectionHeading
+          eyebrow="Projects"
+          title="Recent Builds And Security-Driven Experiments"
+          description="Filter by domain, then open a card to view details, stack, and media placeholders."
+        />
+      </motion.div>
 
-      <div className="mb-6 flex flex-wrap gap-2">
+      <motion.div
+        className="mb-6 flex flex-wrap gap-2"
+        initial={revealInitial}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: reducedMotion ? 0 : 0.05 }}
+      >
         {filters.map((filter) => {
           const isActive = activeFilter === filter;
           return (
@@ -70,11 +84,11 @@ export default function Projects() {
             </button>
           );
         })}
-      </div>
+      </motion.div>
 
       <div className="mt-10 flex flex-col gap-8">
         {filteredProjects.map((project, index) => (
-          <button
+          <motion.button
             key={project.id}
             type="button"
             onClick={() => setSelectedProject(project)}
@@ -82,6 +96,14 @@ export default function Projects() {
               'group relative h-[68vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-line/45 bg-surface text-left shadow-glow transition hover:border-brand/60 md:sticky md:top-24',
               index % 2 === 0 ? 'md:w-[78%] md:self-start' : 'md:w-[78%] md:self-end'
             )}
+            initial={revealInitial}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{
+              duration: 0.82,
+              ease: [0.22, 1, 0.36, 1],
+              delay: reducedMotion ? 0 : 0.05 + index * 0.04
+            }}
           >
             <Image
               src={project.screenshots[0]}
@@ -116,7 +138,7 @@ export default function Projects() {
                 {project.shortDescription}
               </p>
             </div>
-          </button>
+          </motion.button>
         ))}
       </div>
 

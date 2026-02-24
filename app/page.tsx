@@ -3,6 +3,7 @@ import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
 import IntroLoader from '@/components/IntroLoader';
 import Navbar from '@/components/Navbar';
+import PageCurtain from '@/components/PageCurtain';
 
 const About = dynamic(() => import('@/components/About'));
 const Projects = dynamic(() => import('@/components/Projects'));
@@ -14,6 +15,7 @@ export default function HomePage() {
   return (
     <>
       <IntroLoader />
+      <PageCurtain />
       <Navbar />
       <main id="main-content" className="relative overflow-x-clip">
         <Hero />

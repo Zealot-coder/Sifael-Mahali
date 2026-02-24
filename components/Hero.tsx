@@ -19,10 +19,12 @@ const HeroScene = dynamic(() => import('@/components/three/HeroScene'), {
 export default function Hero() {
   const reduceMotion = useReducedMotion();
   const { hero } = portfolioContent;
+  const nameWords = hero.name.split(' ').filter(Boolean);
+  const taglineWords = hero.tagline.split(' ').filter(Boolean);
   const marqueeText = `${hero.name} - ${hero.name} - ${hero.name} - ${hero.name} - `;
   const transition = reduceMotion
     ? { duration: 0 }
-    : { duration: 0.7, ease: [0.22, 1, 0.36, 1] };
+    : { duration: 0.82, ease: [0.22, 1, 0.36, 1] };
 
   return (
     <section
@@ -45,7 +47,7 @@ export default function Hero() {
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
         <motion.p
-          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={transition}
           className="inline-flex border border-brand/45 bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand"
@@ -53,28 +55,42 @@ export default function Hero() {
           {hero.availability}
         </motion.p>
 
-        <motion.h1
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...transition, delay: reduceMotion ? 0 : 0.05 }}
-          className="mt-6 max-w-5xl font-display text-5xl font-semibold uppercase leading-[0.88] tracking-[-0.04em] text-text sm:text-7xl md:text-8xl"
-        >
-          {hero.name}
-        </motion.h1>
+        <h1 className="mt-6 max-w-5xl font-display text-5xl font-semibold uppercase leading-[0.88] tracking-[-0.04em] text-text sm:text-7xl md:text-8xl">
+          {nameWords.map((word, index) => (
+            <span key={`${word}-${index}`} className="mr-[0.22em] inline-block overflow-hidden">
+              <motion.span
+                initial={reduceMotion ? false : { y: '110%', opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{
+                  duration: reduceMotion ? 0 : 0.78,
+                  ease: [0.22, 1, 0.36, 1],
+                  delay: reduceMotion ? 0 : 0.08 + index * 0.085
+                }}
+                className="inline-block"
+              >
+                {word}
+              </motion.span>
+            </span>
+          ))}
+        </h1>
 
         <motion.p
-          initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 26 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...transition, delay: reduceMotion ? 0 : 0.1 }}
+          transition={{ ...transition, delay: reduceMotion ? 0 : 0.46 }}
           className="mt-4 max-w-3xl text-sm font-semibold uppercase tracking-[0.14em] text-accent sm:text-base"
         >
-          {hero.tagline}
+          {taglineWords.map((word, index) => (
+            <span key={`${word}-${index}`} className="mr-[0.34em] inline-block">
+              {word}
+            </span>
+          ))}
         </motion.p>
 
         <motion.p
           initial={reduceMotion ? false : { opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...transition, delay: reduceMotion ? 0 : 0.15 }}
+          transition={{ ...transition, delay: reduceMotion ? 0 : 0.56 }}
           className="mt-6 max-w-2xl text-sm leading-relaxed text-muted sm:text-base"
         >
           {hero.description}
@@ -83,7 +99,7 @@ export default function Hero() {
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...transition, delay: reduceMotion ? 0 : 0.2 }}
+          transition={{ ...transition, delay: reduceMotion ? 0 : 0.68 }}
           className="mt-9 flex flex-wrap gap-3"
         >
           <a href={hero.primaryCta.href} className="cta-primary">
