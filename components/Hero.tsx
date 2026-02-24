@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
 import { portfolioContent } from '@/content/content';
-import { cn } from '@/lib/cn';
 
 const HeroScene = dynamic(() => import('@/components/three/HeroScene'), {
   ssr: false,
@@ -21,7 +20,6 @@ export default function Hero() {
   const { hero } = portfolioContent;
   const nameWords = hero.name.split(' ').filter(Boolean);
   const taglineWords = hero.tagline.split(' ').filter(Boolean);
-  const marqueeText = `${hero.name} - ${hero.name} - ${hero.name} - ${hero.name} - `;
   const transition = reduceMotion
     ? { duration: 0 }
     : { duration: 0.82, ease: [0.22, 1, 0.36, 1] };
@@ -33,17 +31,6 @@ export default function Hero() {
     >
       <HeroScene />
       <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:34px_34px] [mask-image:radial-gradient(circle_at_center,black,transparent_72%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-1/2 z-[1] -translate-y-1/2 overflow-hidden">
-        <div
-          className={cn(
-            'hero-marquee flex w-[200%] whitespace-nowrap font-display text-[22vw] font-semibold uppercase leading-[0.8] tracking-[-0.05em] text-text/8',
-            reduceMotion && 'animate-none'
-          )}
-        >
-          <span className="pr-10">{marqueeText}</span>
-          <span>{marqueeText}</span>
-        </div>
-      </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
         <motion.p

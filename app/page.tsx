@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import AppBackgroundMarquee from '@/components/AppBackgroundMarquee';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
 import IntroLoader from '@/components/IntroLoader';
@@ -16,8 +17,9 @@ export default function HomePage() {
     <>
       <IntroLoader />
       <PageCurtain />
+      <AppBackgroundMarquee />
       <Navbar />
-      <main id="main-content" className="relative overflow-x-clip">
+      <main id="main-content" className="relative z-10 overflow-x-clip">
         <Hero />
         <About />
         <Projects />

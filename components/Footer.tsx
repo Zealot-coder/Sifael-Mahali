@@ -5,7 +5,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden border-t border-line/50 pt-12">
+    <footer className="relative z-10 overflow-hidden border-t border-line/50 pt-12">
       <Reveal className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div>
           <div className="grid gap-10 md:grid-cols-2">
