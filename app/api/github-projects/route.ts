@@ -134,42 +134,6 @@ function toTitleCase(name: string) {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function repoToProject(repo: GitHubRepo): Project {
-  const categories = repoCategories(repo);
-  const stack = [repo.language ?? '', ...repo.topics.slice(0, 4), 'GitHub API']
-    .filter(Boolean)
-    .slice(0, 5);
-  const lastUpdated = new Date(repo.updatedAt).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short'
-  });
-  const imageText = encodeURIComponent(repo.name);
-
-  return {
-    id: `gh-${repo.id}`,
-    title: toTitleCase(repo.name),
-    shortDescription:
-      repo.description ??
-      'GitHub repository imported dynamically. Add extended case-study context.',
-    longDescription: `${
-      repo.description ??
-      'Repository imported dynamically from GitHub. Add architecture notes, security decisions, and outcomes.'
-    }\n\nStars: ${repo.stars} | Last Updated: ${lastUpdated}`,
-    categories,
-    stack,
-    githubUrl: repo.htmlUrl,
-    liveUrl: repo.homepageUrl ?? '',
-    screenshots: [
-      `https://placehold.co/1200x675/140b06/f44e00?text=${imageText}`,
-      `https://placehold.co/1200x675/140b06/ff8c29?text=${imageText}+Preview`
-    ],
-    source: 'github',
-    stars: repo.stars,
-    updatedAt: lastUpdated,
-    isPlaceholder: false
-  };
-}
-
 function normalizeGraphqlRepo(node: GraphqlRepoNode): GitHubRepo {
   return {
     id: node.id,
@@ -202,6 +166,57 @@ function normalizeRestRepo(repo: RestRepoResponse): GitHubRepo {
   };
 }
 
+function isRateLimitMessage(message: string) {
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes('rate limit') ||
+    normalized.includes('api rate limit exceeded') ||
+    normalized.includes('x-ratelimit-remaining')
+  );
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Unknown GitHub API error';
+}
+
+function repoToProject(repo: GitHubRepo, isPinned: boolean): Project {
+  const categories = repoCategories(repo);
+  const stack = [repo.language ?? '', ...repo.topics.slice(0, 4), 'GitHub API']
+    .filter(Boolean)
+    .slice(0, 5);
+  const lastUpdated = new Date(repo.updatedAt).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short'
+  });
+  const imageText = encodeURIComponent(repo.name);
+
+  return {
+    id: `gh-${repo.id}`,
+    title: toTitleCase(repo.name),
+    shortDescription:
+      repo.description ??
+      'GitHub repository imported dynamically. Add extended case-study context.',
+    longDescription: `${
+      repo.description ??
+      'Repository imported dynamically from GitHub. Add architecture notes, security decisions, and outcomes.'
+    }\n\nStars: ${repo.stars} | Language: ${repo.language ?? 'N/A'} | Last Updated: ${lastUpdated}`,
+    categories,
+    stack,
+    githubUrl: repo.htmlUrl,
+    liveUrl: repo.homepageUrl ?? '',
+    screenshots: [
+      `https://placehold.co/1200x675/140b06/f44e00?text=${imageText}`,
+      `https://placehold.co/1200x675/140b06/ff8c29?text=${imageText}+Preview`
+    ],
+    source: 'github',
+    isPinned,
+    language: repo.language ?? undefined,
+    stars: repo.stars,
+    updatedAt: lastUpdated,
+    isPlaceholder: false
+  };
+}
+
 async function fetchPinnedRepos(username: string, token: string): Promise<GitHubRepo[]> {
   const response = await fetch('https://api.github.com/graphql', {
     method: 'POST',
@@ -218,7 +233,8 @@ async function fetchPinnedRepos(username: string, token: string): Promise<GitHub
   });
 
   if (!response.ok) {
-    throw new Error(`GitHub GraphQL request failed with status ${response.status}`);
+    const message = `GitHub GraphQL request failed with status ${response.status}`;
+    throw new Error(message);
   }
 
   const payload = (await response.json()) as {
@@ -250,7 +266,12 @@ async function fetchRestRepos(username: string, token?: string): Promise<GitHubR
   );
 
   if (!response.ok) {
-    throw new Error(`GitHub REST request failed with status ${response.status}`);
+    const remaining = response.headers.get('x-ratelimit-remaining');
+    let message = `GitHub REST request failed with status ${response.status}`;
+    if (remaining === '0') {
+      message += ' | x-ratelimit-remaining=0';
+    }
+    throw new Error(message);
   }
 
   const repositories = (await response.json()) as RestRepoResponse[];
@@ -262,32 +283,56 @@ async function fetchRestRepos(username: string, token?: string): Promise<GitHubR
 export async function GET() {
   const username = process.env.GITHUB_USERNAME ?? 'Zealot-coder';
   const token = process.env.GITHUB_TOKEN;
+  const warnings: string[] = [];
+  let rateLimited = false;
+  let pinnedRepos: GitHubRepo[] = [];
+  let restRepos: GitHubRepo[] = [];
+
+  if (token) {
+    try {
+      pinnedRepos = await fetchPinnedRepos(username, token);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      warnings.push(`Pinned fetch failed: ${message}`);
+      if (isRateLimitMessage(message)) rateLimited = true;
+    }
+  }
 
   try {
-    const pinnedRepos = token ? await fetchPinnedRepos(username, token) : [];
-    const restRepos = await fetchRestRepos(username, token);
+    restRepos = await fetchRestRepos(username, token);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    warnings.push(`Repo fetch failed: ${message}`);
+    if (isRateLimitMessage(message)) rateLimited = true;
 
-    const pinnedIds = new Set(pinnedRepos.map((repo) => repo.id));
-    const rankedRest = restRepos
-      .filter((repo) => !pinnedIds.has(repo.id))
-      .sort((a, b) => repoScore(b) - repoScore(a));
-
-    const combined = [...pinnedRepos, ...rankedRest].slice(0, 8);
-    const projects = combined.map((repo) => repoToProject(repo));
-
-    return NextResponse.json({
-      ok: true,
-      source: token ? 'graphql+pinned' : 'rest-fallback',
-      projects
-    });
-  } catch {
-    return NextResponse.json(
-      {
-        ok: false,
-        source: 'unavailable',
-        projects: [] as Project[]
-      },
-      { status: 200 }
-    );
+    if (pinnedRepos.length === 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          source: 'unavailable',
+          projects: [] as Project[],
+          rateLimited,
+          error: message,
+          warnings
+        },
+        { status: 200 }
+      );
+    }
   }
+
+  const pinnedIds = new Set(pinnedRepos.map((repo) => repo.id));
+  const rankedRest = restRepos
+    .filter((repo) => !pinnedIds.has(repo.id))
+    .sort((a, b) => repoScore(b) - repoScore(a));
+
+  const combined = [...pinnedRepos, ...rankedRest].slice(0, 8);
+  const projects = combined.map((repo) => repoToProject(repo, pinnedIds.has(repo.id)));
+
+  return NextResponse.json({
+    ok: true,
+    source: token && pinnedRepos.length > 0 ? 'graphql-pinned' : 'rest-fallback',
+    projects,
+    rateLimited,
+    warnings
+  });
 }

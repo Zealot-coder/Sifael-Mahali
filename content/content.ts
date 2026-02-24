@@ -11,6 +11,8 @@ export interface Project {
   liveUrl: string;
   screenshots: string[];
   source?: 'manual' | 'github';
+  isPinned?: boolean;
+  language?: string;
   stars?: number;
   updatedAt?: string;
   isPlaceholder?: boolean;
