@@ -6,7 +6,7 @@ export default function Experience() {
     <section id="experience" className="section-shell">
       <SectionHeading
         eyebrow="Experience"
-        title="Work and education timeline"
+        title="Work And Education Timeline"
         description="Structured to mirror LinkedIn chronology. Replace placeholders with exact entries."
       />
 

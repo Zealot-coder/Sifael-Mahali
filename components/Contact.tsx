@@ -66,7 +66,7 @@ export default function Contact() {
     <section id="contact" className="section-shell">
       <SectionHeading
         eyebrow="Contact"
-        title="Let us build something secure and useful"
+        title="Let's Build Something Secure And Useful"
         description="Use the form or fallback mailto link. Social links are editable in content.ts."
       />
 

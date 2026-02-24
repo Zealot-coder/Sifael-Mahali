@@ -20,8 +20,8 @@ const config: Config = {
         accent: 'rgb(var(--accent) / <alpha-value>)'
       },
       fontFamily: {
-        sans: ['var(--font-space)', 'ui-sans-serif', 'system-ui'],
-        display: ['var(--font-sora)', 'ui-sans-serif', 'system-ui']
+        sans: ['var(--font-body)', 'ui-sans-serif', 'system-ui'],
+        display: ['var(--font-display)', 'ui-sans-serif', 'system-ui']
       },
       boxShadow: {
         glow: '0 0 0 1px rgb(var(--line) / 0.35), 0 24px 64px -28px rgb(var(--brand) / 0.45)'
@@ -30,10 +30,15 @@ const config: Config = {
         drift: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-10px)' }
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' }
         }
       },
       animation: {
-        drift: 'drift 8s ease-in-out infinite'
+        drift: 'drift 8s ease-in-out infinite',
+        marquee: 'marquee 24s linear infinite'
       },
       backgroundImage: {
         'hero-grid':

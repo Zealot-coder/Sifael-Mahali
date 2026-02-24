@@ -1,17 +1,19 @@
 import type { Metadata, Viewport } from 'next';
-import { Sora, Space_Grotesk } from 'next/font/google';
+import { Manrope, Syne } from 'next/font/google';
 import { portfolioContent } from '@/content/content';
 import './globals.css';
 
-const fontSans = Space_Grotesk({
+const fontSans = Manrope({
   subsets: ['latin'],
-  variable: '--font-space',
+  variable: '--font-body',
+  weight: ['400', '500', '600', '700', '800'],
   display: 'swap'
 });
 
-const fontDisplay = Sora({
+const fontDisplay = Syne({
   subsets: ['latin'],
-  variable: '--font-sora',
+  variable: '--font-display',
+  weight: ['400', '500', '600', '700', '800'],
   display: 'swap'
 });
 
@@ -63,7 +65,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   colorScheme: 'dark light',
-  themeColor: '#080b14'
+  themeColor: '#090603'
 };
 
 export default function RootLayout({

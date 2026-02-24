@@ -54,25 +54,26 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all',
-        scrolled ? 'px-2 pt-2' : 'px-0 pt-0'
+        'fixed inset-x-0 top-0 z-50 px-4 transition-all sm:px-6 lg:px-8',
+        scrolled ? 'pt-2' : 'pt-4'
       )}
     >
       <nav
         className={cn(
-          'mx-auto flex max-w-6xl items-center gap-2 rounded-2xl border border-line/40 bg-bg/70 px-3 py-2 backdrop-blur-xl',
-          scrolled && 'shadow-glow'
+          'mx-auto flex max-w-7xl items-center gap-3 border-b border-line/60 pb-3',
+          scrolled &&
+            'rounded-2xl border border-line/45 bg-bg/72 px-3 py-3 shadow-glow backdrop-blur-xl'
         )}
       >
         <a
           href="#home"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line/50 bg-surfaceAlt/70 font-display text-sm font-bold tracking-widest text-text"
+          className="text-sm font-semibold uppercase tracking-[0.12em] text-text transition hover:text-brand"
           aria-label="Go to top"
         >
-          SM
+          Sifael Mahali
         </a>
 
-        <div className="scrollbar-none flex flex-1 items-center gap-1 overflow-x-auto">
+        <div className="scrollbar-none flex flex-1 items-center justify-center gap-1 overflow-x-auto">
           {links.map((item) => {
             const id = item.href.slice(1);
             const isActive = activeSection === id;
@@ -82,10 +83,10 @@ export default function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'rounded-xl px-3 py-2 text-sm font-medium transition',
+                  'rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition sm:text-sm',
                   isActive
                     ? 'bg-brand/20 text-brand'
-                    : 'text-muted hover:bg-surfaceAlt/70 hover:text-text'
+                    : 'text-muted hover:text-text'
                 )}
               >
                 {item.label}

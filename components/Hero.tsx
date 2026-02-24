@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
 import { portfolioContent } from '@/content/content';
+import { cn } from '@/lib/cn';
 
 const HeroScene = dynamic(() => import('@/components/three/HeroScene'), {
   ssr: false,
@@ -18,6 +19,7 @@ const HeroScene = dynamic(() => import('@/components/three/HeroScene'), {
 export default function Hero() {
   const reduceMotion = useReducedMotion();
   const { hero } = portfolioContent;
+  const marqueeText = `${hero.name} - ${hero.name} - ${hero.name} - ${hero.name} - `;
   const transition = reduceMotion
     ? { duration: 0 }
     : { duration: 0.7, ease: [0.22, 1, 0.36, 1] };
@@ -25,17 +27,28 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative isolate flex min-h-[92vh] items-center overflow-hidden pt-28"
+      className="relative isolate flex min-h-screen items-end overflow-hidden pt-28"
     >
       <HeroScene />
-      <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:32px_32px] [mask-image:radial-gradient(circle_at_center,black,transparent_72%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:34px_34px] [mask-image:radial-gradient(circle_at_center,black,transparent_72%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-1/2 z-[1] -translate-y-1/2 overflow-hidden">
+        <div
+          className={cn(
+            'hero-marquee flex w-[200%] whitespace-nowrap font-display text-[22vw] font-semibold uppercase leading-[0.8] tracking-[-0.05em] text-text/8',
+            reduceMotion && 'animate-none'
+          )}
+        >
+          <span className="pr-10">{marqueeText}</span>
+          <span>{marqueeText}</span>
+        </div>
+      </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
         <motion.p
           initial={reduceMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={transition}
-          className="inline-flex rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-brand"
+          className="inline-flex border border-brand/45 bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand"
         >
           {hero.availability}
         </motion.p>
@@ -44,7 +57,7 @@ export default function Hero() {
           initial={reduceMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...transition, delay: reduceMotion ? 0 : 0.05 }}
-          className="mt-6 max-w-4xl font-display text-4xl font-semibold leading-[1.05] text-text sm:text-6xl md:text-7xl"
+          className="mt-6 max-w-5xl font-display text-5xl font-semibold uppercase leading-[0.88] tracking-[-0.04em] text-text sm:text-7xl md:text-8xl"
         >
           {hero.name}
         </motion.h1>
@@ -53,7 +66,7 @@ export default function Hero() {
           initial={reduceMotion ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...transition, delay: reduceMotion ? 0 : 0.1 }}
-          className="mt-4 max-w-3xl text-lg font-medium text-accent sm:text-xl"
+          className="mt-4 max-w-3xl text-sm font-semibold uppercase tracking-[0.14em] text-accent sm:text-base"
         >
           {hero.tagline}
         </motion.p>
@@ -71,19 +84,13 @@ export default function Hero() {
           initial={reduceMotion ? false : { opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...transition, delay: reduceMotion ? 0 : 0.2 }}
-          className="mt-8 flex flex-wrap gap-3"
+          className="mt-9 flex flex-wrap gap-3"
         >
-          <a
-            href={hero.primaryCta.href}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110"
-          >
+          <a href={hero.primaryCta.href} className="cta-primary">
             {hero.primaryCta.label}
             <ArrowRight size={16} />
           </a>
-          <a
-            href={hero.secondaryCta.href}
-            className="inline-flex items-center gap-2 rounded-xl border border-line/60 bg-surfaceAlt/70 px-5 py-3 text-sm font-semibold text-text transition hover:border-brand/60 hover:text-brand"
-          >
+          <a href={hero.secondaryCta.href} className="cta-secondary">
             {hero.secondaryCta.label}
             <Download size={16} />
           </a>

@@ -8,7 +8,7 @@ export default function About() {
     <section id="about" className="section-shell">
       <SectionHeading
         eyebrow="About"
-        title="Secure engineering, clean product thinking"
+        title="Secure Engineering, Clean Product Thinking"
         description="I build digital products with performance, trust, and usability at the center."
       />
 
@@ -19,7 +19,9 @@ export default function About() {
         </article>
 
         <article className="glass-card p-6 sm:p-8">
-          <h3 className="font-display text-xl font-semibold text-text">Highlights</h3>
+          <h3 className="font-display text-xl font-semibold uppercase tracking-[0.08em] text-text">
+            Highlights
+          </h3>
           <ul className="mt-4 space-y-3 text-sm text-muted">
             {about.highlights.map((item) => (
               <li key={item} className="rounded-xl border border-line/40 bg-surfaceAlt/40 p-3">
@@ -31,7 +33,9 @@ export default function About() {
       </div>
 
       <div className="mt-6 glass-card p-6 sm:p-8">
-        <h3 className="font-display text-xl font-semibold text-text">Tech Stack</h3>
+        <h3 className="font-display text-xl font-semibold uppercase tracking-[0.08em] text-text">
+          Tech Stack
+        </h3>
         <div className="mt-4 flex flex-wrap gap-2">
           {about.techStack.map((tech) => (
             <span key={tech} className="pill">

@@ -6,7 +6,7 @@ export default function Skills() {
     <section id="skills" className="section-shell">
       <SectionHeading
         eyebrow="Skills"
-        title="Core capabilities"
+        title="Core Capabilities"
         description="Proficiency bars are lightweight visual indicators and easy to tune from content.ts."
       />
 

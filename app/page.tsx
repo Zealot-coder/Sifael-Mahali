@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
+import IntroLoader from '@/components/IntroLoader';
 import Navbar from '@/components/Navbar';
 
 const About = dynamic(() => import('@/components/About'));
@@ -12,6 +13,7 @@ const Contact = dynamic(() => import('@/components/Contact'));
 export default function HomePage() {
   return (
     <>
+      <IntroLoader />
       <Navbar />
       <main id="main-content" className="relative overflow-x-clip">
         <Hero />
