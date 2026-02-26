@@ -6,6 +6,7 @@ Dashboard reference:
 - `https://supabase.com/dashboard/project/mnclxezauapsuewhioms`
 
 Expected local structure:
+- `supabase/config.toml` local Supabase runtime configuration
 - `supabase/migrations/` SQL migrations
 - `supabase/seed/` seed data files
 

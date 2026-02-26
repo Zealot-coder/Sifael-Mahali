@@ -9,11 +9,17 @@
     "lint:fix": "next lint --fix",
     "build": "next build",
     "start": "next start",
-    "check": "npm run typecheck && npm run lint && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run build",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:status": "npx supabase status",
+    "supabase:types": "npx supabase gen types typescript --local > types/supabase.ts"
   },
   "dependencies": {
     "@react-three/drei": "^9.121.4",
     "@react-three/fiber": "^8.17.14",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.8",
     "@vercel/kv": "^2.0.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.13.1",

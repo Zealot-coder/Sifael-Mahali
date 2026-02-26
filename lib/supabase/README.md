@@ -2,9 +2,11 @@
 
 This directory contains Supabase client factories and data-access helpers.
 
-Recommended split:
-- `server.ts` for server components, route handlers, and server actions.
-- `browser.ts` (or `client.ts`) for browser usage.
-- `queries/*` for domain-specific data functions.
+Current files:
+- `client.ts` browser client (`createSupabaseBrowserClient`)
+- `server.ts` server and service-role clients
+- `middleware.ts` session update helper for Next middleware
+- `index.ts` exports
 
-No runtime Supabase logic is introduced in this hygiene-only pass.
+Security note:
+- Service role key usage is restricted to server-only modules.

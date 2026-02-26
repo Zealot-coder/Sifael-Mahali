@@ -16,6 +16,14 @@ Interactive, SEO-ready Next.js portfolio with motion, a lightweight 3D hero, and
 - `types/`
 - `supabase/`
 
+## Supabase Configuration
+- Local Supabase config lives at `supabase/config.toml`.
+- Hosted project: `mnclxezauapsuewhioms` (`SIFAEL MAHALI PORTFOLIO`).
+- SSR utilities:
+  - `lib/supabase/client.ts`
+  - `lib/supabase/server.ts`
+  - `lib/supabase/middleware.ts`
+
 ## Quick Start
 1. Install dependencies:
    - `npm install`
@@ -34,6 +42,41 @@ Interactive, SEO-ready Next.js portfolio with motion, a lightweight 3D hero, and
 - `npm run lint:fix`
 - `npm run build`
 - `npm run check` (typecheck + lint + build)
+- `npm run supabase:start`
+- `npm run supabase:stop`
+- `npm run supabase:status`
+- `npm run supabase:types`
+
+## Local Supabase Setup
+Prerequisites:
+- Docker Desktop (running)
+
+1. Start local Supabase services:
+   - `npm run supabase:start`
+2. Check local service status and keys:
+   - `npm run supabase:status`
+3. Populate `.env.local`:
+   - `NEXT_PUBLIC_SUPABASE_URL` (typically `http://127.0.0.1:54321`)
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (local anon key)
+   - `SUPABASE_SERVICE_ROLE_KEY` (local service-role key, server-only)
+4. Generate DB types after schema changes:
+   - `npm run supabase:types`
+5. Run app:
+   - `npm run dev`
+
+## Hosted Supabase Setup
+1. In Supabase Dashboard project `mnclxezauapsuewhioms`, copy Project URL + API keys.
+2. Configure env vars in Vercel:
+   - `NEXT_PUBLIC_SUPABASE_URL` (hosted URL)
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (publishable anon key)
+   - `SUPABASE_SERVICE_ROLE_KEY` (server-only secret key)
+3. Redeploy after env updates.
+
+## Security Rules
+- `SUPABASE_SERVICE_ROLE_KEY` is server-only.
+- Never prefix service-role key with `NEXT_PUBLIC_`.
+- Never expose service-role key in client components, browser bundles, or public logs.
+- Keep secrets only in `.env.local` and Vercel project env settings.
 
 ## Formatting Conventions
 - Use `.editorconfig` defaults (UTF-8, LF, 2 spaces for TS/JS/JSON/YAML/MD).
