@@ -1,17 +1,17 @@
 import dynamic from 'next/dynamic';
-import AppBackgroundMarquee from '@/components/AppBackgroundMarquee';
-import Footer from '@/components/Footer';
-import Hero from '@/components/Hero';
-import IntroLoader from '@/components/IntroLoader';
-import Navbar from '@/components/Navbar';
-import PageCurtain from '@/components/PageCurtain';
+import AppBackgroundMarquee from '@/components/public/AppBackgroundMarquee';
+import Footer from '@/components/public/Footer';
+import Hero from '@/components/public/Hero';
+import IntroLoader from '@/components/public/IntroLoader';
+import Navbar from '@/components/public/Navbar';
+import PageCurtain from '@/components/public/PageCurtain';
 import { getPortfolioContent } from '@/lib/portfolio-store';
 
-const About = dynamic(() => import('@/components/About'));
-const Projects = dynamic(() => import('@/components/Projects'));
-const Experience = dynamic(() => import('@/components/Experience'));
-const Skills = dynamic(() => import('@/components/Skills'));
-const Contact = dynamic(() => import('@/components/Contact'));
+const About = dynamic(() => import('@/components/public/About'));
+const Projects = dynamic(() => import('@/components/public/Projects'));
+const Experience = dynamic(() => import('@/components/public/Experience'));
+const Skills = dynamic(() => import('@/components/public/Skills'));
+const Contact = dynamic(() => import('@/components/public/Contact'));
 
 export default async function HomePage() {
   const content = await getPortfolioContent();
