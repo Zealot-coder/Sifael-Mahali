@@ -1,7 +1,10 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { unstable_noStore as noStore } from 'next/cache';
-import { PortfolioContent, portfolioContent as defaultPortfolioContent } from '@/content/content';
+import {
+  portfolioContent as defaultPortfolioContent,
+  type PortfolioContent
+} from '@/content/content';
 
 const CONTENT_KEY = 'portfolio:content:v1';
 const LOCAL_CONTENT_PATH = path.join(process.cwd(), 'content', 'portfolio-content.local.json');
