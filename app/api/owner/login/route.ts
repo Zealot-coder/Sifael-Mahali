@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import {
-  OWNER_SESSION_COOKIE,
   createOwnerSessionToken,
   getOwnerSessionCookieMaxAge,
   hasOwnerPasswordConfigured,
-  isOwnerPasswordValid
+  isOwnerPasswordValid,
+  OWNER_SESSION_COOKIE
 } from '@/lib/owner-auth';
 
 export const runtime = 'nodejs';

@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import type { PortfolioContent } from '@/content/content';
 import Reveal from './motion/Reveal';
 import SectionHeading from './SectionHeading';

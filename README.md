@@ -2,6 +2,20 @@
 
 Interactive, SEO-ready Next.js portfolio with motion, a lightweight 3D hero, and an editable content layer.
 
+## Architecture Audit Snapshot
+- App Router is active (`app/`), with route handlers under `app/api/*`.
+- Owner JSON editor exists at `/owner` (`components/owner/OwnerDashboard.tsx`).
+- Content storage currently supports Vercel KV with local file fallback (`lib/portfolio-store.ts`).
+- Default static source remains `content/content.ts`.
+
+## Supabase-Oriented Structure (Scaffolded)
+- `lib/supabase/`
+- `lib/validations/`
+- `components/public/`
+- `components/owner/`
+- `types/`
+- `supabase/`
+
 ## Quick Start
 1. Install dependencies:
    - `npm install`
@@ -13,6 +27,27 @@ Interactive, SEO-ready Next.js portfolio with motion, a lightweight 3D hero, and
 5. Build and run production:
    - `npm run build`
    - `npm run start`
+
+## Engineering Scripts
+- `npm run typecheck`
+- `npm run lint`
+- `npm run lint:fix`
+- `npm run build`
+- `npm run check` (typecheck + lint + build)
+
+## Formatting Conventions
+- Use `.editorconfig` defaults (UTF-8, LF, 2 spaces for TS/JS/JSON/YAML/MD).
+- Prefer `import type` for type-only imports.
+- Keep imports consistent and deduplicated (enforced by ESLint).
+
+## Definition Of Done (DoD)
+- [ ] `npm run typecheck` passes.
+- [ ] `npm run lint` passes.
+- [ ] `npm run build` passes.
+- [ ] Basic smoke run in local dev (`npm run dev`), verify:
+  - [ ] `/` renders without runtime errors.
+  - [ ] `/owner` renders and login screen appears.
+  - [ ] At least one section anchor navigation works.
 
 ## Notes
 - Contact API uses Resend when environment variables are configured.

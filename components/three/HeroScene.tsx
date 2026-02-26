@@ -4,12 +4,12 @@ import { Float, Stars } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useReducedMotion } from 'framer-motion';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import * as THREE from 'three';
+import type { Mesh } from 'three';
 
 type NavigatorWithMemory = Navigator & { deviceMemory?: number };
 
 function Orb({ animate }: { animate: boolean }) {
-  const ref = useRef<THREE.Mesh>(null);
+  const ref = useRef<Mesh>(null);
 
   useFrame((_state, delta) => {
     if (!animate || !ref.current) return;

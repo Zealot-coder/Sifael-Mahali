@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import type { PortfolioContent } from '@/content/content';
 import { isOwnerAuthenticated } from '@/lib/owner-auth';
 import {
