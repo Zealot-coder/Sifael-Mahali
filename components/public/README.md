@@ -2,7 +2,7 @@
 
 This directory is reserved for all public-facing portfolio UI sections and shared display components.
 
-Migration target examples:
+Current public modules:
 - `Navbar`
 - `Hero`
 - `About`
@@ -11,5 +11,3 @@ Migration target examples:
 - `Skills`
 - `Contact`
 - `Footer`
-
-Current implementation still uses root-level `components/*` files and will be moved incrementally in later product-focused prompts.

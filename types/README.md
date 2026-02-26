@@ -6,4 +6,6 @@ This directory is reserved for cross-layer TypeScript types:
 - Owner/public DTOs
 - Supabase row mappings
 
-Existing `content/content.ts` types remain active and will be migrated incrementally.
+Current:
+- `supabase.ts` (generated/managed via `npm run supabase:types`)
+- `index.ts` type exports

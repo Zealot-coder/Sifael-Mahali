@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
 import type { PortfolioContent } from '@/content/content';
 
-const HeroScene = dynamic(() => import('@/components/three/HeroScene'), {
+const HeroScene = dynamic(() => import('@/components/public/three/HeroScene'), {
   ssr: false,
   loading: () => (
     <div className="pointer-events-none absolute inset-0">

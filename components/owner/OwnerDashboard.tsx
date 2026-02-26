@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { PortfolioContent } from '@/content/content';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 
 type OwnerResponse = {
   ok: boolean;

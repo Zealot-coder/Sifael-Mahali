@@ -5,7 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ExternalLink, Github, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { Project, ProjectCategory } from '@/content/content';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import SectionHeading from './SectionHeading';
 
 type FilterOption = 'All' | ProjectCategory;

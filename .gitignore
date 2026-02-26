@@ -1,6 +1,8 @@
 .next
 node_modules
-.env.local
+.env
+.env.*
+!.env.example
 dist
 npm-debug.log*
 yarn-debug.log*
@@ -9,3 +11,5 @@ pnpm-debug.log*
 coverage
 content/portfolio-content.local.json
 *.tsbuildinfo
+supabase/.temp/
+supabase/.branches/

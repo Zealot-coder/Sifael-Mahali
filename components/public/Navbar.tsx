@@ -4,8 +4,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Menu, Moon, Sun, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { PortfolioContent } from '@/content/content';
-import { cn } from '@/lib/cn';
-import { useActiveSection } from '@/lib/use-active-section';
+import { useActiveSection } from '@/lib/hooks/use-active-section';
+import { cn } from '@/lib/utils/cn';
 
 interface NavbarProps {
   navigation: PortfolioContent['navigation'];
