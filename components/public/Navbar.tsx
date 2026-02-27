@@ -13,20 +13,20 @@ interface NavbarProps {
 }
 
 function ThemeToggle({ className }: { className?: string }) {
-  const [isLight, setIsLight] = useState(false);
+  const [isPurple, setIsPurple] = useState(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem('theme');
-    const nextLight = saved === 'light';
-    document.documentElement.classList.toggle('light', nextLight);
-    setIsLight(nextLight);
+    const nextPurple = saved === 'purple' || saved === 'light';
+    document.documentElement.classList.toggle('purple', nextPurple);
+    setIsPurple(nextPurple);
   }, []);
 
   const toggleTheme = () => {
-    const nextLight = !isLight;
-    setIsLight(nextLight);
-    document.documentElement.classList.toggle('light', nextLight);
-    window.localStorage.setItem('theme', nextLight ? 'light' : 'dark');
+    const nextPurple = !isPurple;
+    setIsPurple(nextPurple);
+    document.documentElement.classList.toggle('purple', nextPurple);
+    window.localStorage.setItem('theme', nextPurple ? 'purple' : 'dark');
   };
 
   return (
@@ -37,9 +37,9 @@ function ThemeToggle({ className }: { className?: string }) {
         'inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line/50 bg-surfaceAlt/70 text-muted transition hover:border-brand/60 hover:text-text',
         className
       )}
-      aria-label={isLight ? 'Switch to dark theme' : 'Switch to light theme'}
+      aria-label={isPurple ? 'Switch to dark theme' : 'Switch to purple theme'}
     >
-      {isLight ? <Moon size={16} /> : <Sun size={16} />}
+      {isPurple ? <Moon size={16} /> : <Sun size={16} />}
     </button>
   );
 }

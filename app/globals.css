@@ -14,29 +14,29 @@
   --accent: 132 204 22;
 }
 
-html.light {
-  color-scheme: light;
-  --bg: 222 231 225;
-  --surface: 231 239 233;
-  --surface-alt: 214 226 219;
-  --text: 18 39 30;
-  --muted: 66 103 86;
-  --line: 138 170 154;
-  --brand: 22 134 66;
-  --accent: 97 146 35;
+html.purple {
+  color-scheme: dark;
+  --bg: 15 10 24;
+  --surface: 24 16 38;
+  --surface-alt: 36 24 54;
+  --text: 233 223 255;
+  --muted: 180 160 216;
+  --line: 86 61 130;
+  --brand: 168 85 247;
+  --accent: 236 72 153;
 }
 
-html.light body {
+html.purple body {
   background-color: rgb(var(--bg));
   background-image:
-    radial-gradient(circle at 16% 14%, rgb(var(--brand) / 0.12), transparent 36%),
-    radial-gradient(circle at 82% 74%, rgb(var(--accent) / 0.1), transparent 40%),
+    radial-gradient(circle at 16% 14%, rgb(var(--brand) / 0.2), transparent 36%),
+    radial-gradient(circle at 82% 74%, rgb(var(--accent) / 0.14), transparent 40%),
     linear-gradient(
       150deg,
-      rgb(215 226 219 / 1),
-      rgb(221 232 225 / 1) 42%,
-      rgb(213 223 217 / 1) 68%,
-      rgb(208 219 212 / 1)
+      rgb(19 12 30 / 1),
+      rgb(26 16 40 / 1) 42%,
+      rgb(17 10 27 / 1) 68%,
+      rgb(13 8 22 / 1)
     );
 }
 
