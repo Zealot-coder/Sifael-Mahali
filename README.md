@@ -97,6 +97,27 @@ Prerequisites:
 5. Run app:
    - `npm run dev`
 
+## Phase 2: Database + RLS
+Schema and policy files:
+- `supabase/migrations/001_initial_schema.sql`
+- `supabase/migrations/002_rls_policies.sql`
+- `supabase/seed/seed.sql`
+- `supabase/seed/rls_verification.sql`
+
+Reset and apply locally:
+- `npm run supabase:start`
+- `npx supabase db reset`
+- `npm run supabase:status`
+
+RLS verification:
+- Open Supabase SQL editor (local or hosted).
+- Run SQL in `supabase/seed/rls_verification.sql`.
+- Confirm anonymous reads fail on `contact_messages` and `analytics_events`.
+
+Rollback:
+- `npx supabase migration repair --status reverted 001_initial_schema 002_rls_policies`
+- `npx supabase db reset`
+
 ## Hosted Supabase Setup
 1. In Supabase Dashboard project `mnclxezauapsuewhioms`, copy Project URL + API keys.
 2. Configure env vars in Vercel:
@@ -110,6 +131,7 @@ Prerequisites:
 - Never prefix service-role key with `NEXT_PUBLIC_`.
 - Never expose service-role key in client components, browser bundles, or public logs.
 - Keep secrets only in `.env.local` and Vercel project env settings.
+- `contact_messages` and `analytics_events` are insert-only for anon; no anon SELECT.
 
 ## Formatting Conventions
 - Use `.editorconfig` defaults (UTF-8, LF, 2 spaces for TS/JS/JSON/YAML/MD).

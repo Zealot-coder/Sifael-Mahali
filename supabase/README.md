@@ -10,4 +10,8 @@ Expected local structure:
 - `supabase/migrations/` SQL migrations
 - `supabase/seed/` seed data files
 
-This scaffold does not introduce schema or policy SQL yet.
+Current SQL assets:
+- `migrations/001_initial_schema.sql` core schema + indexes + timestamp triggers
+- `migrations/002_rls_policies.sql` Row Level Security policies
+- `seed/seed.sql` initial portfolio data seed
+- `seed/rls_verification.sql` manual policy validation queries
