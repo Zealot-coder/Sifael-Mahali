@@ -283,7 +283,7 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
                 type="button"
                 onClick={() => void updateItem()}
                 disabled={isSubmitting}
-                className="rounded-lg border border-accent/50 bg-accent/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#ffe0bf] transition hover:bg-accent/25 disabled:opacity-70"
+                className="rounded-lg border border-accent/50 bg-accent/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-lime-100 transition hover:bg-accent/25 disabled:opacity-70"
               >
                 Update
               </button>
@@ -291,7 +291,7 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
                 type="button"
                 onClick={() => void deleteItem()}
                 disabled={isSubmitting}
-                className="rounded-lg border border-brand/55 bg-brand/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#ffd2b4] transition hover:bg-brand/25 disabled:opacity-70"
+                className="rounded-lg border border-brand/55 bg-brand/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-brand/25 disabled:opacity-70"
               >
                 Delete
               </button>
@@ -302,10 +302,11 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
             value={editor}
             onChange={(event) => setEditor(event.target.value)}
             spellCheck={false}
-            className="h-[52vh] w-full rounded-xl border border-line/50 bg-[#0c0a08] px-3 py-3 font-mono text-xs text-[#ffd9be] outline-none transition focus:border-brand/60"
+            className="h-[52vh] w-full rounded-xl border border-line/50 bg-[#04110b] px-3 py-3 font-mono text-xs text-emerald-100 outline-none transition focus:border-brand/60"
           />
         </div>
       </div>
     </OwnerPanel>
   );
 }
+

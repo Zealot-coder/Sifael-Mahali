@@ -24,7 +24,7 @@ const config: Config = {
         display: ['var(--font-display)', 'ui-sans-serif', 'system-ui']
       },
       boxShadow: {
-        glow: '0 0 0 1px rgb(var(--line) / 0.35), 0 24px 64px -28px rgb(var(--brand) / 0.45)'
+        glow: '0 0 0 1px rgb(var(--line) / 0.35), 0 20px 56px -30px rgb(var(--brand) / 0.5), 0 0 42px rgb(var(--brand) / 0.12)'
       },
       keyframes: {
         drift: {

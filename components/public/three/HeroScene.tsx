@@ -26,9 +26,9 @@ function Orb({ animate }: { animate: boolean }) {
       <mesh ref={ref} scale={1.45}>
         <icosahedronGeometry args={[1.2, 2]} />
         <meshStandardMaterial
-          color="#ff9a4a"
+          color="#5dff9c"
           wireframe
-          emissive="#ff5a00"
+          emissive="#18c964"
           emissiveIntensity={0.72}
           metalness={0.2}
           roughness={0.28}
@@ -82,7 +82,7 @@ export default function HeroScene() {
       >
         <ambientLight intensity={0.55} />
         <directionalLight position={[3, 2, 3]} intensity={1.15} />
-        <directionalLight position={[-3, -2, -3]} intensity={0.42} color="#ff8f45" />
+        <directionalLight position={[-3, -2, -3]} intensity={0.42} color="#8fff52" />
         <Suspense fallback={null}>
           <Orb animate={animate} />
           {!reduceMotion ? (

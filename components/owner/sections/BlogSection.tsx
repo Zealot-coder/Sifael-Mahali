@@ -288,7 +288,7 @@ export default function BlogSection({ onToast, onUnauthorized }: BlogSectionProp
               type="button"
               onClick={() => void updatePost()}
               disabled={isSubmitting}
-              className="rounded-lg border border-accent/50 bg-accent/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#ffe0bf] transition hover:bg-accent/25 disabled:opacity-70"
+              className="rounded-lg border border-accent/50 bg-accent/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-lime-100 transition hover:bg-accent/25 disabled:opacity-70"
             >
               Update
             </button>
@@ -296,7 +296,7 @@ export default function BlogSection({ onToast, onUnauthorized }: BlogSectionProp
               type="button"
               onClick={() => void deletePost()}
               disabled={isSubmitting}
-              className="rounded-lg border border-brand/55 bg-brand/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#ffd2b4] transition hover:bg-brand/25 disabled:opacity-70"
+              className="rounded-lg border border-brand/55 bg-brand/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-brand/25 disabled:opacity-70"
             >
               Delete
             </button>
@@ -358,7 +358,7 @@ export default function BlogSection({ onToast, onUnauthorized }: BlogSectionProp
             onChange={(event) => setField('content', event.target.value)}
             spellCheck={false}
             placeholder="MDX content"
-            className="mt-2 h-[40vh] w-full rounded-xl border border-line/60 bg-[#0d0a08] px-3 py-2 font-mono text-xs text-[#ffd8bc] outline-none transition focus:border-brand/70"
+            className="mt-2 h-[40vh] w-full rounded-xl border border-line/60 bg-[#04110b] px-3 py-2 font-mono text-xs text-emerald-100 outline-none transition focus:border-brand/70"
           />
 
           <p className="mt-2 text-xs text-muted">
@@ -372,3 +372,4 @@ export default function BlogSection({ onToast, onUnauthorized }: BlogSectionProp
     </OwnerPanel>
   );
 }
+

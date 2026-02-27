@@ -209,7 +209,7 @@ export default function MessagesSection({ onToast, onUnauthorized }: MessagesSec
                 </div>
               </div>
 
-              <div className="mt-2 rounded-lg border border-line/40 bg-[#0d0a08] px-3 py-3 text-sm text-[#ffd8bc]">
+              <div className="mt-2 rounded-lg border border-line/40 bg-[#04110b] px-3 py-3 text-sm text-emerald-100">
                 {selectedMessage.message}
               </div>
 
@@ -254,3 +254,4 @@ export default function MessagesSection({ onToast, onUnauthorized }: MessagesSec
     </OwnerPanel>
   );
 }
+

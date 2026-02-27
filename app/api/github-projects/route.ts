@@ -205,8 +205,8 @@ function repoToProject(repo: GitHubRepo, isPinned: boolean): Project {
     githubUrl: repo.htmlUrl,
     liveUrl: repo.homepageUrl ?? '',
     screenshots: [
-      `https://placehold.co/1200x675/140b06/f44e00?text=${imageText}`,
-      `https://placehold.co/1200x675/140b06/ff8c29?text=${imageText}+Preview`
+      `https://placehold.co/1200x675/03110a/22c55e?text=${imageText}`,
+      `https://placehold.co/1200x675/03110a/84cc16?text=${imageText}+Preview`
     ],
     source: 'github',
     isPinned,

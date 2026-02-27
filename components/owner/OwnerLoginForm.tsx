@@ -55,9 +55,14 @@ export default function OwnerLoginForm({ nextPath }: OwnerLoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen bg-bg px-4 py-20 text-text sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-md rounded-2xl border border-line/50 bg-surface/80 p-6 shadow-glow backdrop-blur-xl">
-        <h1 className="font-display text-2xl font-semibold uppercase tracking-[0.04em]">
+    <div className="owner-shell px-4 py-20 text-text sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="owner-aurora absolute left-[-8%] top-[12%] h-72 w-72 rounded-full bg-brand/20 blur-3xl" />
+        <div className="owner-aurora absolute right-[-10%] bottom-[8%] h-80 w-80 rounded-full bg-accent/16 blur-3xl" />
+      </div>
+      <div className="owner-card relative mx-auto max-w-md p-6">
+        <span className="owner-pill mb-3">Owner Access</span>
+        <h1 className="font-display text-2xl font-semibold uppercase tracking-[0.03em]">
           Owner Login
         </h1>
         <p className="mt-2 text-sm text-muted">
@@ -112,7 +117,7 @@ export default function OwnerLoginForm({ nextPath }: OwnerLoginFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex rounded-xl bg-brand px-5 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-white transition hover:brightness-110 disabled:opacity-70"
+            className="inline-flex rounded-xl border border-brand/55 bg-brand/20 px-5 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-emerald-100 transition hover:bg-brand/30 disabled:opacity-70"
           >
             {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>

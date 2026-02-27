@@ -21,7 +21,7 @@ export default function OwnerPanel({
   return (
     <section
       className={cn(
-        'rounded-2xl border border-line/50 bg-surface/80 p-4 shadow-glow backdrop-blur-xl sm:p-5',
+        'owner-card p-4 sm:p-5',
         className
       )}
     >

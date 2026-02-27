@@ -21,8 +21,8 @@ export async function GET(request: Request) {
         style={{
           alignItems: 'center',
           background:
-            'radial-gradient(circle at 20% 20%, rgba(255,138,61,.25), transparent 35%), radial-gradient(circle at 80% 80%, rgba(255,88,31,.22), transparent 40%), #080909',
-          color: '#f6ede6',
+            'radial-gradient(circle at 20% 20%, rgba(80,255,161,.24), transparent 35%), radial-gradient(circle at 80% 80%, rgba(132,204,22,.2), transparent 40%), #03100b',
+          color: '#d6ffe7',
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
@@ -34,9 +34,9 @@ export async function GET(request: Request) {
       >
         <div
           style={{
-            border: '1px solid rgba(255,153,102,0.34)',
+            border: '1px solid rgba(84,255,168,0.34)',
             borderRadius: 18,
-            color: '#ffa366',
+            color: '#73ffb2',
             fontSize: 22,
             letterSpacing: '0.18em',
             marginBottom: 26,
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
         </div>
         <div
           style={{
-            color: '#c8b6a8',
+            color: '#97d8b5',
             fontSize: 30,
             marginTop: 20,
             maxWidth: 980,

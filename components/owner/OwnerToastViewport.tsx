@@ -13,9 +13,9 @@ function toastStyles(kind: OwnerToast['kind']) {
     return 'border-emerald-400/50 bg-emerald-500/15 text-emerald-100';
   }
   if (kind === 'error') {
-    return 'border-brand/60 bg-brand/15 text-[#ffd2b4]';
+    return 'border-rose-400/50 bg-rose-500/15 text-rose-100';
   }
-  return 'border-accent/50 bg-accent/15 text-[#ffe0bf]';
+  return 'border-lime-400/50 bg-lime-500/15 text-lime-100';
 }
 
 export default function OwnerToastViewport({ toasts }: OwnerToastViewportProps) {

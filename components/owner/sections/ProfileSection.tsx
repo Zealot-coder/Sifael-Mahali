@@ -306,7 +306,7 @@ export default function ProfileSection({ onToast, onUnauthorized }: ProfileSecti
               value={form.socialLinksText}
               onChange={(event) => setField('socialLinksText', event.target.value)}
               placeholder='{"linkedin":"...","github":"..."}'
-              className="h-24 w-full rounded-xl border border-line/60 bg-[#0d0a08] px-3 py-2 font-mono text-xs text-[#ffd8bc] outline-none transition focus:border-brand/70"
+              className="h-24 w-full rounded-xl border border-line/60 bg-[#04110b] px-3 py-2 font-mono text-xs text-emerald-100 outline-none transition focus:border-brand/70"
             />
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -391,3 +391,4 @@ export default function ProfileSection({ onToast, onUnauthorized }: ProfileSecti
     </OwnerPanel>
   );
 }
+

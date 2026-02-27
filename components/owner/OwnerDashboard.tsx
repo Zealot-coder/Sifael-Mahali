@@ -2,6 +2,20 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Activity,
+  BadgeCheck,
+  BookOpenText,
+  Briefcase,
+  FolderKanban,
+  GraduationCap,
+  LayoutDashboard,
+  Mail,
+  Settings2,
+  Sparkles,
+  UserCircle2,
+  Wrench
+} from 'lucide-react';
 import { apiRequest, OwnerApiError } from '@/components/owner/api';
 import OwnerPanel from '@/components/owner/OwnerPanel';
 import OwnerToastViewport from '@/components/owner/OwnerToastViewport';
@@ -43,6 +57,20 @@ const ownerSections: OwnerSection[] = [
   { id: 'analytics', label: 'Analytics', description: 'Engagement and traffic analytics' },
   { id: 'settings', label: 'Settings', description: 'Dynamic configuration values' }
 ];
+
+const ownerSectionIcons: Record<OwnerSectionId, typeof LayoutDashboard> = {
+  analytics: Activity,
+  blog: BookOpenText,
+  certifications: BadgeCheck,
+  experience: Briefcase,
+  messages: Mail,
+  overview: LayoutDashboard,
+  profile: UserCircle2,
+  projects: FolderKanban,
+  settings: Settings2,
+  skills: Wrench,
+  testimonials: GraduationCap
+};
 
 const projectTemplate = {
   categories: ['web'],
@@ -192,7 +220,7 @@ export default function OwnerDashboard() {
               type="button"
               onClick={() => void syncGithubProjects()}
               disabled={isSyncingGithub}
-              className="rounded-xl border border-accent/55 bg-accent/15 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#ffe0bf] transition hover:bg-accent/25 disabled:opacity-70"
+              className="owner-action-accent disabled:opacity-70"
             >
               {isSyncingGithub ? 'Syncing...' : 'Sync GitHub'}
             </button>
@@ -285,14 +313,23 @@ export default function OwnerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-bg text-text">
+    <div className="owner-shell text-text">
       <OwnerToastViewport toasts={toasts} />
 
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
-        <header className="rounded-2xl border border-line/50 bg-surface/80 p-4 shadow-glow backdrop-blur-xl">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="owner-aurora absolute -left-20 top-6 h-72 w-72 rounded-full bg-brand/15 blur-3xl" />
+        <div className="owner-aurora absolute -right-10 bottom-8 h-80 w-80 rounded-full bg-accent/14 blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto flex max-w-[1460px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+        <header className="owner-chrome p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="font-display text-2xl font-semibold uppercase tracking-[0.04em]">
+              <p className="owner-pill mb-2">
+                <Sparkles size={12} className="mr-1.5 text-brand" />
+                Secure Control Center
+              </p>
+              <h1 className="font-display text-2xl font-semibold uppercase tracking-[0.03em] sm:text-3xl">
                 Owner Dashboard
               </h1>
               <p className="mt-1 text-sm text-muted">
@@ -303,7 +340,7 @@ export default function OwnerDashboard() {
               <button
                 type="button"
                 onClick={() => router.push('/')}
-                className="rounded-xl border border-line/60 bg-surfaceAlt/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-text transition hover:border-brand/60"
+                className="owner-action"
               >
                 View Site
               </button>
@@ -311,7 +348,7 @@ export default function OwnerDashboard() {
                 type="button"
                 onClick={() => void logout()}
                 disabled={isLoggingOut}
-                className="rounded-xl border border-brand/55 bg-brand/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#ffd2b4] transition hover:bg-brand/25 disabled:opacity-70"
+                className="owner-action-danger disabled:opacity-70"
               >
                 {isLoggingOut ? 'Logging Out...' : 'Logout'}
               </button>
@@ -319,30 +356,43 @@ export default function OwnerDashboard() {
           </div>
         </header>
 
-        <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
-          <aside className="rounded-2xl border border-line/50 bg-surface/80 p-3 shadow-glow backdrop-blur-xl">
-            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+        <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="owner-card h-fit p-3 lg:sticky lg:top-5">
+            <p className="mb-3 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
               Modules
             </p>
             <nav className="space-y-1">
               {ownerSections.map((section) => {
                 const active = section.id === activeSection;
+                const Icon = ownerSectionIcons[section.id] ?? LayoutDashboard;
                 return (
                   <button
                     key={section.id}
                     type="button"
                     onClick={() => setActiveSection(section.id)}
                     className={cn(
-                      'w-full rounded-xl px-3 py-2 text-left transition',
+                      'w-full rounded-2xl border px-3 py-2 text-left transition',
                       active
-                        ? 'border border-brand/45 bg-brand/20'
-                        : 'border border-transparent hover:border-brand/30 hover:bg-surfaceAlt/50'
+                        ? 'border-brand/45 bg-brand/16 shadow-[0_0_0_1px_rgb(var(--brand)_/_0.28),0_0_24px_rgb(var(--brand)_/_0.16)]'
+                        : 'border-transparent hover:border-brand/30 hover:bg-surfaceAlt/55'
                     )}
                   >
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text">
-                      {section.label}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-muted">{section.description}</p>
+                    <div className="flex items-start gap-2">
+                      <span
+                        className={cn(
+                          'mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-lg border text-muted',
+                          active ? 'border-brand/55 bg-brand/15 text-brand' : 'border-line/45 bg-surfaceAlt/40'
+                        )}
+                      >
+                        <Icon size={14} />
+                      </span>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text">
+                          {section.label}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted">{section.description}</p>
+                      </div>
+                    </div>
                   </button>
                 );
               })}

@@ -127,6 +127,13 @@ function toSlugText(value: string) {
     .replace(/\b\w/g, (match) => match.toUpperCase());
 }
 
+function normalizeProjectScreenshot(url: string) {
+  return url
+    .replace('/140b06/f44e00', '/03110a/22c55e')
+    .replace('/140b06/ff8c29', '/03110a/84cc16')
+    .replace('/140b06/fd9f45', '/03110a/38d07a');
+}
+
 function parseStringArray(values: string[] | null | undefined) {
   return (values ?? []).filter((value) => typeof value === 'string' && value.trim().length > 0);
 }
@@ -181,8 +188,8 @@ function inferTimezoneFromLocation(location: string) {
 function mapProjects(rows: ProjectRow[]): Project[] {
   return rows.map((row) => {
     const screenshot = row.thumbnail_url
-      ? row.thumbnail_url
-      : `https://placehold.co/1200x675/140b06/f44e00?text=${encodeURIComponent(
+      ? normalizeProjectScreenshot(row.thumbnail_url)
+      : `https://placehold.co/1200x675/03110a/22c55e?text=${encodeURIComponent(
           toSlugText(row.slug)
         )}`;
 
@@ -510,4 +517,3 @@ export async function getPublishedBlogSlugs() {
     return [];
   }
 }
-

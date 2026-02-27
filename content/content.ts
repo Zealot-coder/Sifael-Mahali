@@ -182,8 +182,8 @@ export const portfolioContent: PortfolioContent = {
       githubUrl: '',
       liveUrl: '',
       screenshots: [
-        'https://placehold.co/1200x675/140b06/f44e00?text=Add+CTF+Screenshot+1',
-        'https://placehold.co/1200x675/140b06/f44e00?text=Add+CTF+Screenshot+2'
+        'https://placehold.co/1200x675/03110a/22c55e?text=Add+CTF+Screenshot+1',
+        'https://placehold.co/1200x675/03110a/22c55e?text=Add+CTF+Screenshot+2'
       ],
       source: 'manual',
       isPlaceholder: true
@@ -200,8 +200,8 @@ export const portfolioContent: PortfolioContent = {
       githubUrl: '',
       liveUrl: '',
       screenshots: [
-        'https://placehold.co/1200x675/140b06/ff8c29?text=Add+Network+Lab+Screenshot+1',
-        'https://placehold.co/1200x675/140b06/ff8c29?text=Add+Network+Lab+Screenshot+2'
+        'https://placehold.co/1200x675/03110a/84cc16?text=Add+Network+Lab+Screenshot+1',
+        'https://placehold.co/1200x675/03110a/84cc16?text=Add+Network+Lab+Screenshot+2'
       ],
       source: 'manual',
       isPlaceholder: true
@@ -218,8 +218,8 @@ export const portfolioContent: PortfolioContent = {
       githubUrl: '',
       liveUrl: '',
       screenshots: [
-        'https://placehold.co/1200x675/140b06/fd9f45?text=Add+Hardening+Screenshot+1',
-        'https://placehold.co/1200x675/140b06/fd9f45?text=Add+Hardening+Screenshot+2'
+        'https://placehold.co/1200x675/03110a/38d07a?text=Add+Hardening+Screenshot+1',
+        'https://placehold.co/1200x675/03110a/38d07a?text=Add+Hardening+Screenshot+2'
       ],
       source: 'manual',
       isPlaceholder: true
