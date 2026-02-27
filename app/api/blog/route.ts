@@ -13,6 +13,7 @@ import {
   statusFromErrorCode
 } from '@/lib/api';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { sanitizeMarkdownInput, sanitizePlainText } from '@/lib/security/sanitize-markdown';
 import { slugify } from '@/lib/utils/slugify';
 import { blogCreateSchema, blogUpdateSchema, deleteByIdSchema, slugSchema } from '@/lib/validations';
 
@@ -115,12 +116,22 @@ export async function POST(request: NextRequest) {
 
   try {
     const rawBody = await readJsonBody(request);
+    const normalizedTitle = sanitizePlainText(String(rawBody.title ?? ''));
     const parsed = blogCreateSchema.parse({
       ...rawBody,
+      title: normalizedTitle,
+      excerpt:
+        typeof rawBody.excerpt === 'string'
+          ? sanitizePlainText(rawBody.excerpt)
+          : rawBody.excerpt,
+      content:
+        typeof rawBody.content === 'string'
+          ? sanitizeMarkdownInput(rawBody.content)
+          : rawBody.content,
       slug:
         typeof rawBody.slug === 'string' && rawBody.slug.trim()
           ? slugify(rawBody.slug)
-          : slugify(String(rawBody.title ?? ''))
+          : slugify(normalizedTitle)
     });
     const payload = {
       ...parsed,
@@ -153,6 +164,13 @@ export async function PATCH(request: NextRequest) {
     const rawBody = await readJsonBody(request);
     const parsed = blogUpdateSchema.parse({
       ...rawBody,
+      ...(typeof rawBody.title === 'string' ? { title: sanitizePlainText(rawBody.title) } : {}),
+      ...(typeof rawBody.excerpt === 'string'
+        ? { excerpt: sanitizePlainText(rawBody.excerpt) }
+        : {}),
+      ...(typeof rawBody.content === 'string'
+        ? { content: sanitizeMarkdownInput(rawBody.content) }
+        : {}),
       ...(typeof rawBody.slug === 'string' ? { slug: slugify(rawBody.slug) } : {})
     });
     const { deleted, id, ...updates } = parsed;

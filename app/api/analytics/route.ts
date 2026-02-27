@@ -8,6 +8,7 @@ import {
   requireOwner,
   statusFromErrorCode
 } from '@/lib/api';
+import { applyRateLimit, buildRateLimitKey, getRequestIp, RATE_LIMIT_RULES } from '@/lib/api/rate-limit';
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from '@/lib/supabase/server';
 import { analyticsEventSchema } from '@/lib/validations';
 
@@ -188,6 +189,24 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await readJsonBody(request);
+    const sessionFromBody =
+      typeof body.session_id === 'string' ? body.session_id : request.headers.get('x-session-id');
+    const rateLimitKey = buildRateLimitKey(RATE_LIMIT_RULES.analytics.keyPrefix, [
+      sessionFromBody,
+      getRequestIp(request)
+    ]);
+    const limitResult = applyRateLimit(RATE_LIMIT_RULES.analytics, rateLimitKey);
+    if (!limitResult.allowed) {
+      return apiError(
+        429,
+        'RATE_LIMITED',
+        'Analytics rate limit exceeded. Please retry shortly.',
+        {
+          retryAfterSeconds: limitResult.retryAfterSeconds
+        }
+      );
+    }
+
     const parsed = analyticsEventSchema.parse({
       ...body,
       session_id:

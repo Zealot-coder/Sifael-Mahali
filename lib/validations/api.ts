@@ -223,7 +223,8 @@ export const contactSubmitSchema = z.object({
   name: z.string().min(2).max(120),
   email: z.string().email().max(320),
   subject: z.string().max(240).nullable().optional(),
-  message: z.string().min(10).max(8000)
+  message: z.string().min(10).max(8000),
+  website: z.string().max(240).optional()
 });
 
 export const analyticsEventSchema = z.object({

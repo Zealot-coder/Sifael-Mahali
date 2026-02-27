@@ -8,6 +8,7 @@ import SectionHeading from './SectionHeading';
 type FormValues = {
   name: string;
   email: string;
+  website: string;
   message: string;
 };
 
@@ -16,6 +17,7 @@ type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
 const INITIAL_FORM: FormValues = {
   name: '',
   email: '',
+  website: '',
   message: ''
 };
 
@@ -81,6 +83,20 @@ export default function Contact({ contact }: ContactProps) {
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <article className="glass-card p-6 sm:p-8">
             <form onSubmit={submitForm} className="space-y-4">
+              <div className="sr-only" aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input
+                  id="website"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={values.website}
+                  onChange={(event) =>
+                    setValues((prev) => ({ ...prev, website: event.target.value }))
+                  }
+                />
+              </div>
+
               <div>
                 <label htmlFor="name" className="mb-1 block text-sm font-medium text-text">
                   Name

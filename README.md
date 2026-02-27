@@ -32,6 +32,7 @@ components/
 lib/
   supabase/
   validations/
+  security/
   api/
   hooks/
   utils/
@@ -168,6 +169,21 @@ Manual auth test flow:
 - RLS posture remains enforced:
   - anonymous inserts allowed
   - anonymous reads blocked on `analytics_events`
+
+## Phase 8: Performance + Hardening
+- Security headers are configured in `next.config.mjs`:
+  - `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`
+  - production CSP + HSTS
+- Runtime hardening:
+  - rate limiting for `POST /api/contact` and `POST /api/analytics`
+  - contact form honeypot field (`website`) with silent bot drop
+  - markdown input sanitization before blog create/update
+- Rendering hardening:
+  - blog post markdown is sanitized before rendering blocks
+  - root error boundaries added via `app/error.tsx` and `app/global-error.tsx`
+- Performance updates:
+  - hero 3D scene mount is deferred until idle time to protect initial LCP
+  - image optimization tuning (`AVIF/WebP`, cache TTL, tuned quality)
 
 ## Hosted Supabase Setup
 1. In Supabase Dashboard project `mnclxezauapsuewhioms`, copy Project URL + API keys.

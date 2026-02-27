@@ -3,15 +3,20 @@
 import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-const HeroScene = dynamic(() => import('@/components/public/three/HeroScene'), {
-  ssr: false,
-  loading: () => (
+function HeroSceneFallback() {
+  return (
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute right-[-12%] top-[-18%] h-[48vh] w-[48vh] rounded-full bg-brand/25 blur-3xl" />
       <div className="absolute bottom-[-24%] left-[-8%] h-[42vh] w-[42vh] rounded-full bg-accent/20 blur-3xl" />
     </div>
-  )
+  );
+}
+
+const HeroScene = dynamic(() => import('@/components/public/three/HeroScene'), {
+  ssr: false,
+  loading: () => <HeroSceneFallback />
 });
 
 interface HeroProps {
@@ -28,18 +33,52 @@ interface HeroProps {
 
 export default function Hero({ hero }: HeroProps) {
   const reduceMotion = useReducedMotion();
+  const [sceneEnabled, setSceneEnabled] = useState(false);
   const nameWords = hero.name.split(' ').filter(Boolean);
   const taglineWords = hero.tagline.split(' ').filter(Boolean);
   const transition = reduceMotion
     ? { duration: 0 }
     : { duration: 0.82, ease: [0.22, 1, 0.36, 1] };
 
+  useEffect(() => {
+    if (reduceMotion) {
+      setSceneEnabled(false);
+      return;
+    }
+
+    let timeoutId: number | null = null;
+    let idleId: number | null = null;
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions
+      ) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    const enableScene = () => setSceneEnabled(true);
+    if (typeof idleWindow.requestIdleCallback === 'function') {
+      idleId = idleWindow.requestIdleCallback(enableScene, { timeout: 1200 });
+    } else {
+      timeoutId = window.setTimeout(enableScene, 450);
+    }
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+      if (idleId !== null && typeof idleWindow.cancelIdleCallback === 'function') {
+        idleWindow.cancelIdleCallback(idleId);
+      }
+    };
+  }, [reduceMotion]);
+
   return (
     <section
       id="home"
       className="relative isolate flex min-h-screen items-end overflow-hidden pt-28"
     >
-      <HeroScene />
+      {sceneEnabled ? <HeroScene /> : <HeroSceneFallback />}
       <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:34px_34px] [mask-image:radial-gradient(circle_at_center,black,transparent_72%)]" />
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">

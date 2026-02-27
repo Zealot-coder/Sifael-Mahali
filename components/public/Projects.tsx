@@ -203,6 +203,8 @@ export default function Projects({ projects, projectCategories }: ProjectsProps)
                 src={project.screenshots[0]}
                 alt={`${project.title} preview`}
                 fill
+                loading="lazy"
+                quality={74}
                 sizes="(max-width: 768px) 100vw, 78vw"
                 className="object-cover transition duration-700 group-hover:scale-105"
               />
@@ -372,6 +374,8 @@ export default function Projects({ projects, projectCategories }: ProjectsProps)
                       src={shot}
                       alt={`${selectedProject.title} screenshot ${idx + 1}`}
                       fill
+                      loading="lazy"
+                      quality={70}
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />

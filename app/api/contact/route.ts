@@ -12,6 +12,7 @@ import {
   requireOwner,
   statusFromErrorCode
 } from '@/lib/api';
+import { applyRateLimit, buildRateLimitKey, getRequestIp, RATE_LIMIT_RULES } from '@/lib/api/rate-limit';
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from '@/lib/supabase/server';
 import { contactMessageUpdateSchema, contactSubmitSchema } from '@/lib/validations';
 
@@ -24,14 +25,6 @@ const contactQuerySchema = z.object({
 
 function sanitizeForIlike(value: string) {
   return value.replace(/[%_]/g, '').trim();
-}
-
-function getClientIp(request: NextRequest) {
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0]?.trim() ?? null;
-  }
-  return request.headers.get('x-real-ip');
 }
 
 async function sendContactNotificationEmail(input: {
@@ -109,8 +102,33 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const payload = contactSubmitSchema.parse(await readJsonBody(request));
+    if ((payload.website ?? '').trim().length > 0) {
+      return apiSuccess(
+        {
+          emailNotification: { attempted: false, delivered: false }
+        },
+        { accepted: true }
+      );
+    }
+
+    const ipAddress = getRequestIp(request);
+    const rateLimitKey = buildRateLimitKey(RATE_LIMIT_RULES.contact.keyPrefix, [
+      ipAddress,
+      payload.email
+    ]);
+    const limitResult = applyRateLimit(RATE_LIMIT_RULES.contact, rateLimitKey);
+    if (!limitResult.allowed) {
+      return apiError(
+        429,
+        'RATE_LIMITED',
+        'Too many contact requests. Please wait before trying again.',
+        {
+          retryAfterSeconds: limitResult.retryAfterSeconds
+        }
+      );
+    }
+
     const supabase = createSupabaseServerClient();
-    const ipAddress = getClientIp(request);
     const userAgent = request.headers.get('user-agent');
     const { data, error } = await supabase
       .from('contact_messages')

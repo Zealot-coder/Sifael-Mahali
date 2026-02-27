@@ -5,6 +5,7 @@ import AnalyticsTracker from '@/components/public/AnalyticsTracker';
 import Footer from '@/components/public/Footer';
 import Navbar from '@/components/public/Navbar';
 import { getPublicPortfolioData, getPublishedBlogSlugs } from '@/lib/public-content';
+import { sanitizeMarkdownInput } from '@/lib/security/sanitize-markdown';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/supabase';
 
@@ -98,6 +99,7 @@ export async function generateStaticParams() {
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const [content, post] = await Promise.all([getPublicPortfolioData(), getBlogPost(params.slug)]);
   if (!post) notFound();
+  const safeContent = sanitizeMarkdownInput(post.content);
   const blogNavigation = content.navigation.map((item: { href: string; label: string }) => ({
     ...item,
     href: `/${item.href}`
@@ -137,7 +139,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
 
           <div className="mt-8 rounded-2xl border border-line/50 bg-surface/70 p-5 sm:p-8">
-            {renderMarkdownBlocks(post.content)}
+            {renderMarkdownBlocks(safeContent)}
           </div>
         </article>
       </main>
