@@ -33,6 +33,7 @@ lib/
   supabase/
   validations/
   security/
+  observability/
   api/
   hooks/
   utils/
@@ -185,6 +186,23 @@ Manual auth test flow:
   - hero 3D scene mount is deferred until idle time to protect initial LCP
   - image optimization tuning (`AVIF/WebP`, cache TTL, tuned quality)
 
+## Phase 9: Observability
+- Added Sentry SDK integration for:
+  - browser runtime (`instrumentation-client.ts`)
+  - Node.js runtime (`sentry.server.config.ts`)
+  - edge runtime (`sentry.edge.config.ts`)
+- Added instrumentation bootstrap (`instrumentation.ts`) for runtime registration.
+- App error boundaries now report exceptions to Sentry:
+  - `app/error.tsx`
+  - `app/global-error.tsx`
+- Event payload scrubbing is enforced before sending telemetry:
+  - header/cookie/token/password-like fields are redacted
+  - user email/ip and sensitive request payload keys are removed
+- Environment isolation is supported through explicit Sentry env vars:
+  - `SENTRY_DSN` (server/edge)
+  - `NEXT_PUBLIC_SENTRY_DSN` (client)
+  - `SENTRY_ENVIRONMENT`, `SENTRY_RELEASE`, `SENTRY_TRACES_SAMPLE_RATE`
+
 ## Hosted Supabase Setup
 1. In Supabase Dashboard project `mnclxezauapsuewhioms`, copy Project URL + API keys.
 2. Configure env vars in Vercel:
@@ -199,6 +217,8 @@ Manual auth test flow:
 - Never expose service-role key in client components, browser bundles, or public logs.
 - Keep secrets only in `.env.local` and Vercel project env settings.
 - `contact_messages` and `analytics_events` are insert-only for anon; no anon SELECT.
+- Sentry secret/config variables are isolated by scope (`SENTRY_*` server vs `NEXT_PUBLIC_*` client).
+- Sensitive telemetry fields are redacted before event delivery.
 
 ## Formatting Conventions
 - Use `.editorconfig` defaults (UTF-8, LF, 2 spaces for TS/JS/JSON/YAML/MD).

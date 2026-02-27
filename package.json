@@ -18,6 +18,7 @@
   "dependencies": {
     "@react-three/drei": "^9.121.4",
     "@react-three/fiber": "^8.17.14",
+    "@sentry/nextjs": "^10.40.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.8",
     "@vercel/kv": "^2.0.0",

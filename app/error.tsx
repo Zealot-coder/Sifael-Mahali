@@ -1,5 +1,6 @@
 'use client';
 
+import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
 
 interface RootErrorProps {
@@ -9,7 +10,11 @@ interface RootErrorProps {
 
 export default function RootError({ error, reset }: RootErrorProps) {
   useEffect(() => {
-    console.error('Unhandled render error:', error);
+    Sentry.captureException(error, {
+      tags: {
+        boundary: 'root'
+      }
+    });
   }, [error]);
 
   return (

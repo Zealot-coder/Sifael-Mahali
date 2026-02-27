@@ -1,3 +1,5 @@
+import { withSentryConfig } from '@sentry/nextjs';
+
 const isProduction = process.env.NODE_ENV === 'production';
 
 const contentSecurityPolicy = [
@@ -10,7 +12,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co https://api.github.com https://github.com",
+  "connect-src 'self' https://*.supabase.co https://api.github.com https://github.com https://*.ingest.sentry.io https://sentry.io",
   "frame-src 'none'"
 ].join('; ');
 
@@ -77,4 +79,9 @@ const nextConfig = {
   }
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: true
+});
