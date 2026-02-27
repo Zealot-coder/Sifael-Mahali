@@ -4,6 +4,24 @@ import { type CookieOptions, createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { Database } from '@/types/supabase';
 
+function validateSupabaseUrl(url: string) {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error('Invalid NEXT_PUBLIC_SUPABASE_URL. Use your project API URL.');
+  }
+
+  const isDashboardUrl =
+    parsed.host === 'supabase.com' && parsed.pathname.startsWith('/dashboard/');
+
+  if (isDashboardUrl) {
+    throw new Error(
+      'NEXT_PUBLIC_SUPABASE_URL is using a dashboard URL. Use your project URL like https://<project-ref>.supabase.co'
+    );
+  }
+}
+
 function getRequiredEnv(name: string) {
   const value = process.env[name];
   if (!value) {
@@ -39,6 +57,7 @@ function createCookieAdapter() {
 export function createSupabaseServerClient() {
   const url = getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL');
   const anonKey = getRequiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  validateSupabaseUrl(url);
 
   return createServerClient<Database, 'public'>(url, anonKey, {
     cookies: createCookieAdapter()
@@ -48,6 +67,7 @@ export function createSupabaseServerClient() {
 export function createSupabaseServiceRoleClient() {
   const url = getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL');
   const serviceRoleKey = getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY');
+  validateSupabaseUrl(url);
 
   return createServerClient<Database, 'public'>(url, serviceRoleKey, {
     cookies: {

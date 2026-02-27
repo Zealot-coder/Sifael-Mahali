@@ -43,8 +43,12 @@ export default function OwnerLoginForm({ nextPath }: OwnerLoginFormProps) {
 
       router.replace(safeNextPath);
       router.refresh();
-    } catch {
-      setErrorMessage('Unable to sign in. Check Supabase environment configuration.');
+    } catch (error) {
+      if (error instanceof Error && error.message) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('Unable to sign in. Check Supabase environment configuration.');
+      }
     } finally {
       setIsSubmitting(false);
     }
