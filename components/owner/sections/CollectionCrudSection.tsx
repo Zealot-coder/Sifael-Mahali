@@ -19,6 +19,9 @@ interface CollectionCrudSectionProps<TItem extends { id: string }> {
   topActions?: ReactNode;
 }
 
+const PAGE_SIZE = 50;
+const PAGE_LIMIT = 8;
+
 function safeStringify(value: unknown) {
   return JSON.stringify(value, null, 2);
 }
@@ -61,15 +64,25 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetchList<TItem>(endpoint, {
-        page: 1,
-        pageSize: 200,
-        ...(listQuery ?? {})
-      });
-      setItems(response.items);
+      const allItems: TItem[] = [];
+      let page = 1;
+
+      while (page <= PAGE_LIMIT) {
+        const response = await fetchList<TItem>(endpoint, {
+          page,
+          pageSize: PAGE_SIZE,
+          ...(listQuery ?? {})
+        });
+        allItems.push(...response.items);
+        const totalPages = response.pagination?.totalPages ?? 1;
+        if (page >= totalPages) break;
+        page += 1;
+      }
+
+      setItems(allItems);
 
       if (selectedId) {
-        const stillExists = response.items.some((item) => item.id === selectedId);
+        const stillExists = allItems.some((item) => item.id === selectedId);
         if (!stillExists) {
           setSelectedId(null);
           setEditor(safeStringify(defaultPayload));
@@ -207,7 +220,7 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
           <button
             type="button"
             onClick={() => void loadItems()}
-            className="rounded-xl border border-line/60 bg-surfaceAlt/60 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-text transition hover:border-brand/60"
+            className="owner-action"
           >
             Reload
           </button>
@@ -220,11 +233,11 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
         </p>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-        <div className="rounded-xl border border-line/50 bg-surfaceAlt/35 p-2">
+      <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)]">
+        <section className="rounded-xl border border-line/50 bg-surfaceAlt/35 p-3">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-              Records ({items.length})
+              Record Browser ({items.length})
             </p>
             {isLoading ? <span className="text-xs text-muted">Loading...</span> : null}
           </div>
@@ -256,26 +269,38 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
               </p>
             ) : null}
           </div>
-        </div>
+        </section>
 
-        <div className="rounded-xl border border-line/50 bg-surfaceAlt/20 p-3">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <section className="space-y-4">
+          <article className="rounded-xl border border-line/50 bg-surfaceAlt/25 p-3">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-              {selectedItem ? `Editing: ${itemTitle(selectedItem)}` : 'Create New Record'}
+              Step 1: Context
             </p>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={resetToTemplate}
-                className="rounded-lg border border-line/60 bg-surfaceAlt/50 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-text transition hover:border-brand/60"
-              >
-                New Template
-              </button>
+            <p className="mt-1 text-sm text-text">
+              {selectedItem ? `Editing ${itemTitle(selectedItem)}` : 'Creating a new record'}
+            </p>
+            <p className="mt-1 text-xs text-muted">
+              Choose an existing record from the browser or start from template.
+            </p>
+            <button
+              type="button"
+              onClick={resetToTemplate}
+              className="owner-action mt-3"
+            >
+              New Template
+            </button>
+          </article>
+
+          <article className="rounded-xl border border-line/50 bg-surfaceAlt/25 p-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+              Step 2: CRUD Actions
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               <button
                 type="button"
                 onClick={() => void createItem()}
                 disabled={isSubmitting}
-                className="rounded-lg border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-emerald-500/25 disabled:opacity-70"
+                className="rounded-lg border border-emerald-500/50 bg-emerald-500/15 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-emerald-500/25 disabled:opacity-70"
               >
                 Create
               </button>
@@ -283,7 +308,7 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
                 type="button"
                 onClick={() => void updateItem()}
                 disabled={isSubmitting}
-                className="rounded-lg border border-accent/50 bg-accent/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-lime-100 transition hover:bg-accent/25 disabled:opacity-70"
+                className="rounded-lg border border-accent/50 bg-accent/15 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-lime-100 transition hover:bg-accent/25 disabled:opacity-70"
               >
                 Update
               </button>
@@ -291,20 +316,36 @@ export default function CollectionCrudSection<TItem extends { id: string }>({
                 type="button"
                 onClick={() => void deleteItem()}
                 disabled={isSubmitting}
-                className="rounded-lg border border-brand/55 bg-brand/15 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-brand/25 disabled:opacity-70"
+                className="rounded-lg border border-rose-500/55 bg-rose-500/15 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-500/25 disabled:opacity-70"
               >
                 Delete
               </button>
+              <button
+                type="button"
+                onClick={() => void loadItems()}
+                className="owner-action"
+              >
+                Reload
+              </button>
             </div>
-          </div>
+          </article>
 
-          <textarea
-            value={editor}
-            onChange={(event) => setEditor(event.target.value)}
-            spellCheck={false}
-            className="h-[52vh] w-full rounded-xl border border-line/50 bg-[#04110b] px-3 py-3 font-mono text-xs text-emerald-100 outline-none transition focus:border-brand/60"
-          />
-        </div>
+          <article className="rounded-xl border border-line/50 bg-surfaceAlt/20 p-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+              Step 3: JSON Editor
+            </p>
+            <p className="mt-1 text-xs text-muted">
+              Edit the payload below, then run Create, Update, or Delete.
+            </p>
+
+            <textarea
+              value={editor}
+              onChange={(event) => setEditor(event.target.value)}
+              spellCheck={false}
+              className="mt-3 h-[50vh] w-full rounded-xl border border-line/50 bg-[#04110b] px-3 py-3 font-mono text-xs text-emerald-100 outline-none transition focus:border-brand/60"
+            />
+          </article>
+        </section>
       </div>
     </OwnerPanel>
   );
