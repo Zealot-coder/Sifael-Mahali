@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { fetchList } from '@/components/owner/api';
+import { fetchList, OwnerApiError } from '@/components/owner/api';
 import OwnerPanel from '@/components/owner/OwnerPanel';
 
 interface OverviewSectionProps {
@@ -33,7 +33,7 @@ export default function OverviewSection({ onUnauthorized }: OverviewSectionProps
     setIsLoading(true);
     setError('');
     try {
-      const rows = await Promise.all(
+      const settled = await Promise.allSettled(
         metricConfigs.map(async (metric) => {
           const result = await fetchList<Record<string, unknown>>(metric.endpoint, {
             page: 1,
@@ -46,11 +46,39 @@ export default function OverviewSection({ onUnauthorized }: OverviewSectionProps
           } satisfies OverviewMetric;
         })
       );
+
+      const rows: OverviewMetric[] = [];
+      const failedLabels: string[] = [];
+      for (let index = 0; index < settled.length; index += 1) {
+        const metric = metricConfigs[index];
+        const result = settled[index];
+        if (result.status === 'fulfilled') {
+          rows.push(result.value);
+          continue;
+        }
+
+        const reason = result.reason;
+        if (reason instanceof OwnerApiError && reason.status === 401) {
+          onUnauthorized();
+          return;
+        }
+
+        failedLabels.push(metric.label);
+        rows.push({
+          key: metric.key,
+          label: metric.label,
+          total: 0
+        });
+      }
+
       setMetrics(rows);
+      if (failedLabels.length > 0) {
+        setError(`Some modules failed to load: ${failedLabels.join(', ')}.`);
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Unable to load dashboard overview metrics.';
-      if (message.toLowerCase().includes('unauthorized')) {
+      if (error instanceof OwnerApiError && error.status === 401) {
         onUnauthorized();
         return;
       }
