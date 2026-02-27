@@ -5,16 +5,38 @@ import Hero from '@/components/public/Hero';
 import IntroLoader from '@/components/public/IntroLoader';
 import Navbar from '@/components/public/Navbar';
 import PageCurtain from '@/components/public/PageCurtain';
-import { getPortfolioContent } from '@/lib/portfolio-store';
+import { getPublicPortfolioData } from '@/lib/public-content';
 
 const About = dynamic(() => import('@/components/public/About'));
 const Projects = dynamic(() => import('@/components/public/Projects'));
 const Experience = dynamic(() => import('@/components/public/Experience'));
 const Skills = dynamic(() => import('@/components/public/Skills'));
 const Contact = dynamic(() => import('@/components/public/Contact'));
+const Testimonials = dynamic(() => import('@/components/public/Testimonials'));
+const BlogPreview = dynamic(() => import('@/components/public/BlogPreview'));
 
 export default async function HomePage() {
-  const content = await getPortfolioContent();
+  const content = await getPublicPortfolioData();
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Person',
+        name: content.site.name,
+        description: content.site.description,
+        jobTitle: content.hero.tagline,
+        email: content.contact.email,
+        sameAs: content.contact.socials.map((item) => item.url),
+        knowsAbout: content.site.keywords
+      },
+      {
+        '@type': 'WebSite',
+        name: `${content.site.name} Portfolio`,
+        description: content.site.description,
+        url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://sifael-mahali-portfolio.vercel.app'
+      }
+    ]
+  };
 
   return (
     <>
@@ -27,6 +49,10 @@ export default async function HomePage() {
         siteName={content.site.name}
       />
       <main id="main-content" className="relative z-10 overflow-x-clip">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Hero hero={content.hero} />
         <About about={content.about} dataStatus={content.dataStatus} />
         <Projects
@@ -38,6 +64,8 @@ export default async function HomePage() {
           education={content.education}
         />
         <Skills skills={content.skills} certifications={content.certifications} />
+        <Testimonials testimonials={content.testimonials} />
+        <BlogPreview posts={content.blogPosts} />
         <Contact contact={content.contact} />
       </main>
       <Footer

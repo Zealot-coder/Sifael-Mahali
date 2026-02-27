@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Manrope, Syne } from 'next/font/google';
-import { getPortfolioContent } from '@/lib/portfolio-store';
+import { getPublicPortfolioData } from '@/lib/public-content';
 import './globals.css';
 
 const fontSans = Manrope({
@@ -21,7 +21,10 @@ const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://sifael-mahali-portfolio.vercel.app';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const content = await getPortfolioContent();
+  const content = await getPublicPortfolioData();
+  const ogImage = `/api/og?title=${encodeURIComponent(content.site.name)}&subtitle=${encodeURIComponent(
+    content.hero.tagline
+  )}`;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -39,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: `${content.site.name} Portfolio`,
       images: [
         {
-          url: '/og-image.svg',
+          url: ogImage,
           width: 1200,
           height: 630,
           alt: `${content.site.name} Portfolio`
@@ -50,7 +53,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: content.site.title,
       description: content.site.description,
-      images: ['/og-image.svg']
+      images: [ogImage]
     },
     robots: {
       index: true,

@@ -9,5 +9,7 @@ Current public modules:
 - `Projects`
 - `Experience`
 - `Skills`
+- `Testimonials`
+- `BlogPreview`
 - `Contact`
 - `Footer`

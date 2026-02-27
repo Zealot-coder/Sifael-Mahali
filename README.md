@@ -135,6 +135,22 @@ Manual auth test flow:
 3. Confirm redirect to `/owner` and dashboard loads.
 4. Click Logout; confirm redirect back to `/owner/login`.
 
+## Phase 6: Public Site (Supabase-backed)
+- Public rendering now resolves data from Supabase tables (with local content fallback if unavailable).
+- Added conditional public sections:
+  - Testimonials
+  - Blog preview
+- Added blog routes:
+  - `/blog`
+  - `/blog/[slug]`
+- Added CV download route:
+  - `/cv` (redirects to direct URL or signed storage URL)
+- SEO updates:
+  - Dynamic metadata from live content
+  - JSON-LD on homepage
+  - Dynamic OG image endpoint usage (`/api/og`)
+  - Sitemap includes blog URLs
+
 ## Hosted Supabase Setup
 1. In Supabase Dashboard project `mnclxezauapsuewhioms`, copy Project URL + API keys.
 2. Configure env vars in Vercel:
@@ -175,3 +191,6 @@ Manual auth test flow:
   - `KV_REST_API_URL` + `KV_REST_API_TOKEN` configured: persistent Vercel KV mode.
   - No KV variables: local file mode (`content/portfolio-content.local.json`, local/dev only).
 - `content/portfolio-content.local.json` is gitignored and created automatically after first save in owner dashboard.
+- Public site data source priority:
+  - Supabase tables (primary)
+  - local/KV content fallback (secondary)

@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
-import type { PortfolioContent } from '@/content/content';
 
 const HeroScene = dynamic(() => import('@/components/public/three/HeroScene'), {
   ssr: false,
@@ -16,7 +15,15 @@ const HeroScene = dynamic(() => import('@/components/public/three/HeroScene'), {
 });
 
 interface HeroProps {
-  hero: PortfolioContent['hero'];
+  hero: {
+    availability: string;
+    description: string;
+    name: string;
+    openToWork?: boolean;
+    primaryCta: { href: string; label: string };
+    secondaryCta: { href: string; label: string };
+    tagline: string;
+  };
 }
 
 export default function Hero({ hero }: HeroProps) {
@@ -44,6 +51,16 @@ export default function Hero({ hero }: HeroProps) {
         >
           {hero.availability}
         </motion.p>
+        {hero.openToWork ? (
+          <motion.span
+            initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...transition, delay: reduceMotion ? 0 : 0.08 }}
+            className="ml-2 inline-flex border border-accent/45 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-accent"
+          >
+            Open To Work
+          </motion.span>
+        ) : null}
 
         <h1 className="mt-6 max-w-5xl font-display text-5xl font-semibold uppercase leading-[0.88] tracking-[-0.04em] text-text sm:text-7xl md:text-8xl">
           {nameWords.map((word, index) => (

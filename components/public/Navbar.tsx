@@ -3,13 +3,12 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Menu, Moon, Sun, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import type { PortfolioContent } from '@/content/content';
 import { useActiveSection } from '@/lib/hooks/use-active-section';
 import { cn } from '@/lib/utils/cn';
 
 interface NavbarProps {
-  navigation: PortfolioContent['navigation'];
-  contact: PortfolioContent['contact'];
+  navigation: Array<{ href: string; label: string }>;
+  contact: { email: string; socials: Array<{ label: string; url: string }> };
   siteName: string;
 }
 
@@ -70,7 +69,10 @@ export default function Navbar({ navigation, contact, siteName }: NavbarProps) {
   const links = navigation;
   const primarySocial = contact.socials[0];
   const sectionIds = useMemo(
-    () => links.map((item) => item.href.replace('#', '')),
+    () =>
+      links
+        .filter((item) => item.href.startsWith('#'))
+        .map((item) => item.href.replace('#', '')),
     [links]
   );
   const activeSection = useActiveSection(sectionIds);

@@ -1,11 +1,10 @@
-import type { PortfolioContent } from '@/content/content';
 import Reveal from './motion/Reveal';
 
 interface FooterProps {
-  footer: PortfolioContent['footer'];
-  contact: PortfolioContent['contact'];
-  navigation: PortfolioContent['navigation'];
-  site: PortfolioContent['site'];
+  footer: { location: string; timezone: string };
+  contact: { email: string };
+  navigation: Array<{ href: string; label: string }>;
+  site: { name: string };
 }
 
 export default function Footer({ footer, contact, navigation, site }: FooterProps) {
