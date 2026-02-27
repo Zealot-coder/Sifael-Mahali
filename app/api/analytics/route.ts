@@ -15,8 +15,13 @@ import { analyticsEventSchema } from '@/lib/validations';
 export const runtime = 'nodejs';
 
 const analyticsQuerySchema = z.object({
-  days: z.coerce.number().int().min(1).max(365).default(30),
-  eventType: z.enum(['page_view', 'project_view', 'cv_download', 'contact_open']).optional()
+  days: z.preprocess(
+    (value) => (value === 'all' ? 365 : value),
+    z.coerce.number().int().min(1).max(365).default(30)
+  ),
+  eventType: z
+    .enum(['page_view', 'project_view', 'cv_download', 'contact_open', 'all'])
+    .optional()
 });
 
 interface EventAggregate {
@@ -29,7 +34,8 @@ const emailPattern = /[^\s@]+@[^\s@]+\.[^\s@]+/;
 
 function aggregateCounts(values: string[]) {
   const map = new Map<string, number>();
-  for (const value of values) {
+  for (const rawValue of values) {
+    const value = rawValue?.trim() || 'unknown';
     map.set(value, (map.get(value) ?? 0) + 1);
   }
   return [...map.entries()]
@@ -38,7 +44,11 @@ function aggregateCounts(values: string[]) {
 }
 
 function toIsoDate(iso: string) {
-  return new Date(iso).toISOString().slice(0, 10);
+  const parsed = new Date(iso);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return parsed.toISOString().slice(0, 10);
 }
 
 function sanitizePagePath(value: string) {
@@ -120,16 +130,38 @@ function sanitizeMetadata(
   return output;
 }
 
+function emptyAnalyticsPayload(days: number) {
+  return {
+    days,
+    series: {
+      byDay: [] as EventAggregate[],
+      byType: [] as EventAggregate[],
+      topPages: [] as EventAggregate[]
+    },
+    totals: {
+      events: 0,
+      uniqueSessions: 0,
+      byType: {} as Record<string, number>
+    }
+  };
+}
+
+function isAnalyticsReadFallbackError(code: string) {
+  return code === '42P01' || code === '42501';
+}
+
 export async function GET(request: NextRequest) {
   const owner = await requireOwner();
   if (owner.errorResponse) return owner.errorResponse;
 
+  let parsedDays = 30;
   try {
     const searchParams = request.nextUrl.searchParams;
     const { days, eventType } = analyticsQuerySchema.parse({
       days: searchParams.get('days') ?? undefined,
       eventType: searchParams.get('eventType') ?? undefined
     });
+    parsedDays = days;
 
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
     const supabase = createSupabaseServiceRoleClient();
@@ -138,7 +170,7 @@ export async function GET(request: NextRequest) {
       .select('event_type, page_path, created_at, session_id')
       .gte('created_at', since);
 
-    if (eventType) {
+    if (eventType && eventType !== 'all') {
       query = query.eq('event_type', eventType);
     }
 
@@ -148,9 +180,11 @@ export async function GET(request: NextRequest) {
     const rows = data ?? [];
     const eventTypes = aggregateCounts(rows.map((item) => item.event_type));
     const pages = aggregateCounts(rows.map((item) => item.page_path)).slice(0, 10);
-    const daily = aggregateCounts(rows.map((item) => toIsoDate(item.created_at))).sort((a, b) =>
-      a.key.localeCompare(b.key)
-    );
+    const daily = aggregateCounts(
+      rows
+        .map((item) => toIsoDate(item.created_at))
+        .filter((value): value is string => Boolean(value))
+    ).sort((a, b) => a.key.localeCompare(b.key));
     const uniqueSessions = new Set(
       rows
         .map((item) => item.session_id)
@@ -177,6 +211,11 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     const normalized = normalizeError(error);
+    if (isAnalyticsReadFallbackError(normalized.code)) {
+      return apiSuccess(emptyAnalyticsPayload(parsedDays), {
+        warning: normalized.message
+      });
+    }
     return apiError(
       statusFromErrorCode(normalized.code),
       normalized.code,
