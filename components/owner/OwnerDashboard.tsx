@@ -1,330 +1,355 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { PortfolioContent } from '@/content/content';
+import { apiRequest, OwnerApiError } from '@/components/owner/api';
+import OwnerPanel from '@/components/owner/OwnerPanel';
+import OwnerToastViewport from '@/components/owner/OwnerToastViewport';
+import AnalyticsSection from '@/components/owner/sections/AnalyticsSection';
+import BlogSection from '@/components/owner/sections/BlogSection';
+import CollectionCrudSection from '@/components/owner/sections/CollectionCrudSection';
+import MessagesSection from '@/components/owner/sections/MessagesSection';
+import OverviewSection from '@/components/owner/sections/OverviewSection';
+import ProfileSection from '@/components/owner/sections/ProfileSection';
+import SettingsSection from '@/components/owner/sections/SettingsSection';
+import type { OwnerSection, OwnerSectionId, OwnerToast, ToastKind } from '@/components/owner/types';
 import { cn } from '@/lib/utils/cn';
+import type { Database } from '@/types/supabase';
 
-type OwnerResponse = {
-  ok: boolean;
-  storage?: 'kv' | 'file';
-  content?: PortfolioContent;
-  error?: string;
-};
+type ProjectRow = Database['public']['Tables']['projects']['Row'];
+type ExperienceRow = Database['public']['Tables']['experiences']['Row'];
+type SkillRow = Database['public']['Tables']['skills']['Row'];
+type CertificationRow = Database['public']['Tables']['certifications']['Row'];
+type TestimonialRow = Database['public']['Tables']['testimonials']['Row'];
 
-const SECTION_ORDER: Array<keyof PortfolioContent | 'all'> = [
-  'all',
-  'site',
-  'hero',
-  'about',
-  'projects',
-  'experience',
-  'education',
-  'skills',
-  'certifications',
-  'contact',
-  'footer',
-  'navigation',
-  'dataStatus'
+const ownerSections: OwnerSection[] = [
+  { id: 'overview', label: 'Overview', description: 'Snapshot and health indicators' },
+  { id: 'profile', label: 'Profile', description: 'Identity and hero profile data' },
+  { id: 'projects', label: 'Projects', description: 'Portfolio projects CRUD + GitHub sync' },
+  { id: 'experience', label: 'Experience', description: 'Work and education timeline entries' },
+  { id: 'skills', label: 'Skills', description: 'Skill catalog and proficiency data' },
+  {
+    id: 'certifications',
+    label: 'Certifications',
+    description: 'Certificates, issuers, and credential links'
+  },
+  {
+    id: 'testimonials',
+    label: 'Testimonials',
+    description: 'Social proof and recommendations'
+  },
+  { id: 'blog', label: 'Blog', description: 'Article content and publish state' },
+  { id: 'messages', label: 'Messages', description: 'Contact inbox management' },
+  { id: 'analytics', label: 'Analytics', description: 'Engagement and traffic analytics' },
+  { id: 'settings', label: 'Settings', description: 'Dynamic configuration values' }
 ];
 
-function sectionLabel(section: keyof PortfolioContent | 'all') {
-  if (section === 'all') return 'Full Content JSON';
-  return section.charAt(0).toUpperCase() + section.slice(1);
-}
+const projectTemplate = {
+  categories: ['web'],
+  demo_url: null,
+  description: 'Short project description',
+  display_order: 0,
+  is_pinned: false,
+  long_description: 'Detailed project case-study notes',
+  repo_url: null,
+  slug: 'new-project',
+  status: 'published',
+  tech_stack: ['TypeScript', 'Next.js'],
+  thumbnail_url: null,
+  title: 'New Project'
+};
 
-function safeStringify(value: unknown) {
-  return JSON.stringify(value, null, 2);
-}
+const experienceTemplate = {
+  bullets: ['Key result or impact'],
+  description: 'Role summary',
+  display_order: 0,
+  end_date: null,
+  is_current: true,
+  location: 'Dar es Salaam, Tanzania',
+  location_type: 'on-site',
+  organization: 'Organization Name',
+  skills: ['Skill A', 'Skill B'],
+  start_date: '2025-01-01',
+  title: 'Role Title',
+  type: 'work'
+};
+
+const skillTemplate = {
+  category: 'cybersecurity',
+  display_order: 0,
+  icon_name: null,
+  is_featured: false,
+  name: 'New Skill',
+  proficiency: 70
+};
+
+const certificationTemplate = {
+  credential_id: null,
+  credential_url: null,
+  description: null,
+  display_order: 0,
+  expiry_date: null,
+  issue_date: '2026-01-01',
+  issuer: 'Issuer Name',
+  issuer_logo_url: null,
+  name: 'Certification Name'
+};
+
+const testimonialTemplate = {
+  author_avatar_url: null,
+  author_linkedin_url: null,
+  author_name: 'Full Name',
+  author_title: 'Role / Company',
+  content: 'Recommendation text...',
+  display_order: 0,
+  is_featured: false,
+  relationship: 'Worked together'
+};
 
 export default function OwnerDashboard() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState<PortfolioContent | null>(null);
-  const [storage, setStorage] = useState<'kv' | 'file' | 'unknown'>('unknown');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [activeSection, setActiveSection] = useState<keyof PortfolioContent | 'all'>('all');
-  const [editorText, setEditorText] = useState('');
-  const [isDirty, setIsDirty] = useState(false);
-  const [isParsingError, setIsParsingError] = useState(false);
+  const [activeSection, setActiveSection] = useState<OwnerSectionId>('overview');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isSyncingGithub, setIsSyncingGithub] = useState(false);
+  const [toasts, setToasts] = useState<OwnerToast[]>([]);
 
-  const sectionValue = useMemo(() => {
-    if (!content) return null;
-    return activeSection === 'all' ? content : content[activeSection];
-  }, [content, activeSection]);
-
-  const refreshEditorText = useCallback(
-    (
-      nextSection: keyof PortfolioContent | 'all',
-      nextContent: PortfolioContent
-    ) => {
-      const value = nextSection === 'all' ? nextContent : nextContent[nextSection];
-      setEditorText(safeStringify(value));
-      setIsDirty(false);
-      setIsParsingError(false);
-    },
-    []
+  const activeSectionMeta = useMemo(
+    () => ownerSections.find((section) => section.id === activeSection),
+    [activeSection]
   );
 
-  const redirectToLogin = useCallback(() => {
+  const handleUnauthorized = useCallback(() => {
     router.replace('/owner/login?next=%2Fowner');
   }, [router]);
 
-  const loadContent = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      const response = await fetch('/api/owner/content', {
-        credentials: 'include'
-      });
-
-      if (response.status === 401) {
-        redirectToLogin();
-        return;
-      }
-
-      const payload = (await response.json()) as OwnerResponse;
-      if (!payload.ok || !payload.content) {
-        setError(payload.error ?? 'Unable to load content.');
-        return;
-      }
-
-      setContent(payload.content);
-      setStorage(payload.storage ?? 'unknown');
-      refreshEditorText(activeSection, payload.content);
-    } catch {
-      setError('Unable to load content.');
-    } finally {
-      setLoading(false);
-    }
-  }, [activeSection, redirectToLogin, refreshEditorText]);
-
-  useEffect(() => {
-    void loadContent();
-  }, [loadContent]);
+  const pushToast = useCallback((kind: ToastKind, message: string) => {
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    setToasts((prev) => [...prev, { id, kind, message }]);
+    window.setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 3400);
+  }, []);
 
   const logout = async () => {
-    setLoading(true);
+    setIsLoggingOut(true);
     try {
-      await fetch('/api/owner/logout', { method: 'POST' });
-    } finally {
-      setLoading(false);
-      redirectToLogin();
-    }
-  };
-
-  const switchSection = (nextSection: keyof PortfolioContent | 'all') => {
-    if (!content) return;
-    setActiveSection(nextSection);
-    refreshEditorText(nextSection, content);
-    setSuccess('');
-    setError('');
-  };
-
-  const saveChanges = async () => {
-    if (!content) return;
-
-    setError('');
-    setSuccess('');
-    setLoading(true);
-
-    try {
-      const parsed = JSON.parse(editorText) as unknown;
-
-      const nextContent: PortfolioContent =
-        activeSection === 'all'
-          ? (parsed as PortfolioContent)
-          : {
-              ...content,
-              [activeSection]: parsed
-            };
-
-      const response = await fetch('/api/owner/content', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+      await fetch('/api/owner/logout', {
         credentials: 'include',
-        body: JSON.stringify({ content: nextContent })
+        method: 'POST'
       });
-
-      if (response.status === 401) {
-        redirectToLogin();
-        return;
-      }
-
-      const payload = (await response.json()) as {
-        ok?: boolean;
-        error?: string;
-        storage?: 'kv' | 'file';
-      };
-      if (!response.ok || !payload.ok) {
-        setError(payload.error ?? 'Unable to save content.');
-        return;
-      }
-
-      setContent(nextContent);
-      setStorage(payload.storage ?? storage);
-      setIsDirty(false);
-      setIsParsingError(false);
-      setSuccess('Changes saved. Portfolio updated.');
-    } catch {
-      setIsParsingError(true);
-      setError('Invalid JSON. Fix syntax before saving.');
     } finally {
-      setLoading(false);
+      setIsLoggingOut(false);
+      handleUnauthorized();
     }
   };
 
-  if (!content) {
+  const syncGithubProjects = async () => {
+    setIsSyncingGithub(true);
+    try {
+      const result = await apiRequest<{ skipped?: boolean; synced: number }>('/api/projects/sync-github', {
+        body: JSON.stringify({ limit: 12 }),
+        method: 'POST'
+      });
+      if (result.skipped) {
+        pushToast('info', 'GitHub sync finished with no importable repos.');
+      } else {
+        pushToast('success', `GitHub sync completed: ${result.synced} project(s).`);
+      }
+    } catch (error) {
+      if (error instanceof OwnerApiError && error.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+      pushToast('error', error instanceof Error ? error.message : 'GitHub sync failed.');
+    } finally {
+      setIsSyncingGithub(false);
+    }
+  };
+
+  const renderActiveSection = () => {
+    if (activeSection === 'overview') {
+      return <OverviewSection onUnauthorized={handleUnauthorized} />;
+    }
+
+    if (activeSection === 'profile') {
+      return <ProfileSection onToast={pushToast} onUnauthorized={handleUnauthorized} />;
+    }
+
+    if (activeSection === 'projects') {
+      return (
+        <CollectionCrudSection<ProjectRow>
+          title="Projects"
+          description="Create, edit, archive, and remove portfolio projects."
+          endpoint="/api/projects"
+          listQuery={{ includeDeleted: true }}
+          defaultPayload={projectTemplate}
+          itemTitle={(item) => item.title}
+          itemSubtitle={(item) => `${item.slug} | ${item.status}`}
+          onToast={pushToast}
+          onUnauthorized={handleUnauthorized}
+          topActions={
+            <button
+              type="button"
+              onClick={() => void syncGithubProjects()}
+              disabled={isSyncingGithub}
+              className="rounded-xl border border-accent/55 bg-accent/15 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#ffe0bf] transition hover:bg-accent/25 disabled:opacity-70"
+            >
+              {isSyncingGithub ? 'Syncing...' : 'Sync GitHub'}
+            </button>
+          }
+        />
+      );
+    }
+
+    if (activeSection === 'experience') {
+      return (
+        <CollectionCrudSection<ExperienceRow>
+          title="Experience"
+          description="Manage work and education timeline items."
+          endpoint="/api/experience"
+          defaultPayload={experienceTemplate}
+          itemTitle={(item) => item.title}
+          itemSubtitle={(item) => `${item.organization} | ${item.type}`}
+          onToast={pushToast}
+          onUnauthorized={handleUnauthorized}
+        />
+      );
+    }
+
+    if (activeSection === 'skills') {
+      return (
+        <CollectionCrudSection<SkillRow>
+          title="Skills"
+          description="Update skills by category with proficiency levels."
+          endpoint="/api/skills"
+          defaultPayload={skillTemplate}
+          itemTitle={(item) => item.name}
+          itemSubtitle={(item) => `${item.category} | ${item.proficiency}%`}
+          onToast={pushToast}
+          onUnauthorized={handleUnauthorized}
+        />
+      );
+    }
+
+    if (activeSection === 'certifications') {
+      return (
+        <CollectionCrudSection<CertificationRow>
+          title="Certifications"
+          description="Track certifications, issuers, and credential metadata."
+          endpoint="/api/certifications"
+          defaultPayload={certificationTemplate}
+          itemTitle={(item) => item.name}
+          itemSubtitle={(item) => `${item.issuer} | ${item.issue_date ?? 'No date'}`}
+          onToast={pushToast}
+          onUnauthorized={handleUnauthorized}
+        />
+      );
+    }
+
+    if (activeSection === 'testimonials') {
+      return (
+        <CollectionCrudSection<TestimonialRow>
+          title="Testimonials"
+          description="Manage recommendation quotes and featured visibility."
+          endpoint="/api/testimonials"
+          defaultPayload={testimonialTemplate}
+          itemTitle={(item) => item.author_name}
+          itemSubtitle={(item) => item.author_title || item.relationship}
+          onToast={pushToast}
+          onUnauthorized={handleUnauthorized}
+        />
+      );
+    }
+
+    if (activeSection === 'blog') {
+      return <BlogSection onToast={pushToast} onUnauthorized={handleUnauthorized} />;
+    }
+
+    if (activeSection === 'messages') {
+      return <MessagesSection onToast={pushToast} onUnauthorized={handleUnauthorized} />;
+    }
+
+    if (activeSection === 'analytics') {
+      return <AnalyticsSection onToast={pushToast} onUnauthorized={handleUnauthorized} />;
+    }
+
+    if (activeSection === 'settings') {
+      return <SettingsSection onToast={pushToast} onUnauthorized={handleUnauthorized} />;
+    }
+
     return (
-      <div className="min-h-screen bg-bg px-4 py-20 text-text sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-xl rounded-2xl border border-line/50 bg-surface/80 p-6 shadow-glow backdrop-blur-xl">
-          <h1 className="font-display text-2xl font-semibold uppercase tracking-[0.04em]">
-            Owner Dashboard
-          </h1>
-          {loading ? (
-            <p className="mt-3 text-sm text-muted">Loading secure dashboard session...</p>
-          ) : null}
-          {error ? (
-            <p className="mt-3 rounded-lg border border-brand/40 bg-brand/10 px-3 py-2 text-sm text-brand">
-              {error}
-            </p>
-          ) : null}
-          <button
-            type="button"
-            onClick={() => void loadContent()}
-            className="mt-4 rounded-xl border border-line/60 bg-surfaceAlt/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-text transition hover:border-brand/60"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <OwnerPanel title="Unknown Section" description="Select a valid owner dashboard section.">
+        <p className="text-sm text-muted">Section not found.</p>
+      </OwnerPanel>
     );
-  }
+  };
 
   return (
     <div className="min-h-screen bg-bg text-text">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <header className="rounded-2xl border border-line/50 bg-surface/80 p-5 shadow-glow backdrop-blur-xl">
+      <OwnerToastViewport toasts={toasts} />
+
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
+        <header className="rounded-2xl border border-line/50 bg-surface/80 p-4 shadow-glow backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h1 className="font-display text-2xl font-semibold uppercase tracking-[0.04em]">
                 Owner Dashboard
               </h1>
               <p className="mt-1 text-sm text-muted">
-                Storage: <span className="font-semibold uppercase text-accent">{storage}</span>
-                {storage === 'file'
-                  ? ' (local file mode)'
-                  : ' (persistent Vercel KV mode)'}
+                {activeSectionMeta?.label}: {activeSectionMeta?.description}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => void loadContent()}
+                onClick={() => router.push('/')}
                 className="rounded-xl border border-line/60 bg-surfaceAlt/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-text transition hover:border-brand/60"
               >
-                Reload
+                View Site
               </button>
               <button
                 type="button"
                 onClick={() => void logout()}
-                className="rounded-xl border border-line/60 bg-surfaceAlt/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-text transition hover:border-brand/60"
+                disabled={isLoggingOut}
+                className="rounded-xl border border-brand/55 bg-brand/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#ffd2b4] transition hover:bg-brand/25 disabled:opacity-70"
               >
-                Logout
+                {isLoggingOut ? 'Logging Out...' : 'Logout'}
               </button>
             </div>
           </div>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+        <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
           <aside className="rounded-2xl border border-line/50 bg-surface/80 p-3 shadow-glow backdrop-blur-xl">
+            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+              Modules
+            </p>
             <nav className="space-y-1">
-              {SECTION_ORDER.map((section) => {
-                const isActive = activeSection === section;
+              {ownerSections.map((section) => {
+                const active = section.id === activeSection;
                 return (
                   <button
-                    key={section}
+                    key={section.id}
                     type="button"
-                    onClick={() => switchSection(section)}
+                    onClick={() => setActiveSection(section.id)}
                     className={cn(
-                      'w-full rounded-xl px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.12em] transition sm:text-sm',
-                      isActive
-                        ? 'bg-brand/20 text-brand'
-                        : 'text-muted hover:bg-surfaceAlt/60 hover:text-text'
+                      'w-full rounded-xl px-3 py-2 text-left transition',
+                      active
+                        ? 'border border-brand/45 bg-brand/20'
+                        : 'border border-transparent hover:border-brand/30 hover:bg-surfaceAlt/50'
                     )}
                   >
-                    {sectionLabel(section)}
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text">
+                      {section.label}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-muted">{section.description}</p>
                   </button>
                 );
               })}
             </nav>
           </aside>
 
-          <section className="rounded-2xl border border-line/50 bg-surface/80 p-4 shadow-glow backdrop-blur-xl sm:p-5">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h2 className="font-display text-xl font-semibold uppercase tracking-[0.04em]">
-                {sectionLabel(activeSection)}
-              </h2>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    refreshEditorText(activeSection, content);
-                    setSuccess('Section reset to last saved version.');
-                  }}
-                  className="rounded-xl border border-line/60 bg-surfaceAlt/60 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-text transition hover:border-brand/60"
-                >
-                  Reset
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void saveChanges()}
-                  disabled={loading || !isDirty}
-                  className="rounded-xl bg-brand px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </div>
-
-            <p className="mb-3 text-xs text-muted">
-              JSON editor mode supports full add, edit, and delete functionality for any field.
-            </p>
-
-            <textarea
-              value={editorText}
-              onChange={(event) => {
-                setEditorText(event.target.value);
-                setIsDirty(true);
-                setIsParsingError(false);
-                setSuccess('');
-              }}
-              className={cn(
-                'h-[62vh] w-full rounded-xl border bg-[#0c0a08] px-4 py-3 font-mono text-xs leading-relaxed text-[#ffd5b8] outline-none transition sm:text-sm',
-                isParsingError ? 'border-brand/70' : 'border-line/60 focus:border-brand/70'
-              )}
-              spellCheck={false}
-            />
-
-            {error ? (
-              <p className="mt-3 rounded-lg border border-brand/40 bg-brand/10 px-3 py-2 text-sm text-brand">
-                {error}
-              </p>
-            ) : null}
-            {success ? (
-              <p className="mt-3 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-sm text-accent">
-                {success}
-              </p>
-            ) : null}
-
-            <div className="mt-3 text-xs text-muted">
-              Current loaded section size: {safeStringify(sectionValue).length.toLocaleString()} chars
-            </div>
-          </section>
+          <main>{renderActiveSection()}</main>
         </div>
       </div>
     </div>
