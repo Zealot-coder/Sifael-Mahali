@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import AnalyticsTracker from '@/components/public/AnalyticsTracker';
 import Footer from '@/components/public/Footer';
 import Navbar from '@/components/public/Navbar';
 import { getPublicPortfolioData, getPublishedBlogSlugs } from '@/lib/public-content';
@@ -109,6 +110,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         contact={content.contact}
         siteName={content.site.name}
       />
+      <AnalyticsTracker />
       <main id="main-content" className="relative z-10 overflow-x-clip pt-28">
         <article className="section-shell">
           <Link

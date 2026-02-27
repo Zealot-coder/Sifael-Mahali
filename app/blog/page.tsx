@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import AnalyticsTracker from '@/components/public/AnalyticsTracker';
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
 import { getPublicPortfolioData } from '@/lib/public-content';
@@ -33,6 +34,7 @@ export default async function BlogPage() {
         contact={content.contact}
         siteName={content.site.name}
       />
+      <AnalyticsTracker />
       <main id="main-content" className="relative z-10 overflow-x-clip pt-28">
         <section className="section-shell">
           <p className="inline-flex border border-brand/45 bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">

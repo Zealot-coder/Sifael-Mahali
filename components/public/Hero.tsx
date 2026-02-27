@@ -109,11 +109,21 @@ export default function Hero({ hero }: HeroProps) {
           transition={{ ...transition, delay: reduceMotion ? 0 : 0.68 }}
           className="mt-9 flex flex-wrap gap-3"
         >
-          <a href={hero.primaryCta.href} className="cta-primary">
+          <a
+            href={hero.primaryCta.href}
+            data-analytics-event="project_view"
+            data-analytics-label="hero_primary_cta"
+            className="cta-primary"
+          >
             {hero.primaryCta.label}
             <ArrowRight size={16} />
           </a>
-          <a href={hero.secondaryCta.href} className="cta-secondary">
+          <a
+            href={hero.secondaryCta.href}
+            data-analytics-event={hero.secondaryCta.href.includes('/cv') ? 'cv_download' : undefined}
+            data-analytics-label="hero_secondary_cta"
+            className="cta-secondary"
+          >
             {hero.secondaryCta.label}
             <Download size={16} />
           </a>

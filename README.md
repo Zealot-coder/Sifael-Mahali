@@ -151,6 +151,24 @@ Manual auth test flow:
   - Dynamic OG image endpoint usage (`/api/og`)
   - Sitemap includes blog URLs
 
+## Phase 7: Analytics System
+- Public client-side analytics is now instrumented with privacy-safe events:
+  - `page_view`
+  - `project_view`
+  - `cv_download`
+  - `contact_open`
+- Session IDs are generated client-side and rotated with TTL.
+- Analytics ingestion hardening:
+  - server-side payload sanitization for path/referrer/session/country/device
+  - metadata key/value filtering to reduce PII risk
+- Owner analytics dashboard now includes:
+  - total events
+  - unique sessions
+  - daily trend and breakdown by event type/page
+- RLS posture remains enforced:
+  - anonymous inserts allowed
+  - anonymous reads blocked on `analytics_events`
+
 ## Hosted Supabase Setup
 1. In Supabase Dashboard project `mnclxezauapsuewhioms`, copy Project URL + API keys.
 2. Configure env vars in Vercel:

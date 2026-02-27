@@ -20,6 +20,7 @@ interface AnalyticsPayload {
   totals: {
     byType: Record<string, number>;
     events: number;
+    uniqueSessions: number;
   };
 }
 
@@ -136,11 +137,17 @@ export default function AnalyticsSection({ onToast, onUnauthorized }: AnalyticsS
         <p className="text-sm text-muted">Loading analytics...</p>
       ) : payload ? (
         <div className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-4">
             <article className="rounded-xl border border-line/50 bg-surfaceAlt/35 px-4 py-3">
               <p className="text-[11px] uppercase tracking-[0.12em] text-muted">Total Events</p>
               <p className="mt-1 text-2xl font-semibold text-text">
                 {payload.totals.events.toLocaleString()}
+              </p>
+            </article>
+            <article className="rounded-xl border border-line/50 bg-surfaceAlt/35 px-4 py-3">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-muted">Unique Sessions</p>
+              <p className="mt-1 text-2xl font-semibold text-text">
+                {payload.totals.uniqueSessions.toLocaleString()}
               </p>
             </article>
             <article className="rounded-xl border border-line/50 bg-surfaceAlt/35 px-4 py-3 sm:col-span-2">

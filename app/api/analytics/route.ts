@@ -23,6 +23,9 @@ interface EventAggregate {
   key: string;
 }
 
+const piiKeyRegex = /(email|phone|name|address|ip|contact)/i;
+const emailPattern = /[^\s@]+@[^\s@]+\.[^\s@]+/;
+
 function aggregateCounts(values: string[]) {
   const map = new Map<string, number>();
   for (const value of values) {
@@ -35,6 +38,85 @@ function aggregateCounts(values: string[]) {
 
 function toIsoDate(iso: string) {
   return new Date(iso).toISOString().slice(0, 10);
+}
+
+function sanitizePagePath(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return '/';
+  if (trimmed.startsWith('/')) {
+    return trimmed.split('?')[0].split('#')[0].slice(0, 500) || '/';
+  }
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.pathname.slice(0, 500) || '/';
+  } catch {
+    return '/';
+  }
+}
+
+function sanitizeReferrer(value: string | null | undefined) {
+  if (!value) return null;
+  try {
+    const parsed = new URL(value);
+    return `${parsed.origin}${parsed.pathname}`.slice(0, 2048);
+  } catch {
+    return null;
+  }
+}
+
+function sanitizeCountryCode(value: string | null | undefined) {
+  if (!value) return null;
+  const code = value.trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(code) ? code : null;
+}
+
+function sanitizeSessionId(value: string | null | undefined) {
+  if (!value) return null;
+  const sessionId = value.trim().slice(0, 120);
+  return /^[a-zA-Z0-9_-]{4,120}$/.test(sessionId) ? sessionId : null;
+}
+
+function resolveDeviceType(
+  value: 'desktop' | 'mobile' | 'tablet' | null | undefined,
+  userAgent: string | null
+) {
+  if (value === 'desktop' || value === 'mobile' || value === 'tablet') return value;
+  const ua = (userAgent ?? '').toLowerCase();
+  if (ua.includes('mobile')) return 'mobile';
+  if (ua.includes('tablet') || ua.includes('ipad')) return 'tablet';
+  return 'desktop';
+}
+
+function sanitizeMetadata(
+  metadata: Record<string, unknown>
+): Record<string, string | number | boolean | null> {
+  const output: Record<string, string | number | boolean | null> = {};
+  let count = 0;
+
+  for (const [rawKey, rawValue] of Object.entries(metadata)) {
+    if (count >= 12) break;
+    const key = rawKey.trim().slice(0, 60);
+    if (!key || piiKeyRegex.test(key)) continue;
+
+    if (
+      rawValue === null ||
+      typeof rawValue === 'number' ||
+      typeof rawValue === 'boolean'
+    ) {
+      output[key] = rawValue;
+      count += 1;
+      continue;
+    }
+
+    if (typeof rawValue === 'string') {
+      const value = rawValue.trim().slice(0, 180);
+      if (!value || emailPattern.test(value)) continue;
+      output[key] = value;
+      count += 1;
+    }
+  }
+
+  return output;
 }
 
 export async function GET(request: NextRequest) {
@@ -52,7 +134,7 @@ export async function GET(request: NextRequest) {
     const supabase = createSupabaseServiceRoleClient();
     let query = supabase
       .from('analytics_events')
-      .select('event_type, page_path, created_at')
+      .select('event_type, page_path, created_at, session_id')
       .gte('created_at', since);
 
     if (eventType) {
@@ -68,6 +150,11 @@ export async function GET(request: NextRequest) {
     const daily = aggregateCounts(rows.map((item) => toIsoDate(item.created_at))).sort((a, b) =>
       a.key.localeCompare(b.key)
     );
+    const uniqueSessions = new Set(
+      rows
+        .map((item) => item.session_id)
+        .filter((item): item is string => typeof item === 'string' && item.length > 0)
+    ).size;
 
     const byType = eventTypes.reduce<Record<string, number>>((acc, item) => {
       acc[item.key] = item.count;
@@ -83,6 +170,7 @@ export async function GET(request: NextRequest) {
       },
       totals: {
         events: rows.length,
+        uniqueSessions,
         byType
       }
     });
@@ -107,10 +195,20 @@ export async function POST(request: NextRequest) {
           ? body.session_id
           : request.headers.get('x-session-id') ?? body.session_id
     });
+    const sanitizedPayload = {
+      country_code: sanitizeCountryCode(parsed.country_code),
+      device_type: resolveDeviceType(parsed.device_type, request.headers.get('user-agent')),
+      event_type: parsed.event_type,
+      metadata: sanitizeMetadata(parsed.metadata),
+      page_path: sanitizePagePath(parsed.page_path),
+      referrer: sanitizeReferrer(parsed.referrer),
+      session_id: sanitizeSessionId(parsed.session_id)
+    };
+
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase
       .from('analytics_events')
-      .insert(parsed)
+      .insert(sanitizedPayload)
       .select('id, created_at')
       .single();
 

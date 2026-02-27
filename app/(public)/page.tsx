@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
 import AppBackgroundMarquee from '@/components/public/AppBackgroundMarquee';
+import AnalyticsTracker from '@/components/public/AnalyticsTracker';
 import Footer from '@/components/public/Footer';
 import Hero from '@/components/public/Hero';
 import IntroLoader from '@/components/public/IntroLoader';
@@ -48,6 +49,7 @@ export default async function HomePage() {
         contact={content.contact}
         siteName={content.site.name}
       />
+      <AnalyticsTracker />
       <main id="main-content" className="relative z-10 overflow-x-clip">
         <script
           type="application/ld+json"

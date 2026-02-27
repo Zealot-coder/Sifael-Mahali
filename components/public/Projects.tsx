@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ExternalLink, Github, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { Project, ProjectCategory } from '@/content/content';
+import { trackEvent } from '@/lib/analytics/client';
 import { cn } from '@/lib/utils/cn';
 import SectionHeading from './SectionHeading';
 
@@ -84,6 +85,19 @@ export default function Projects({ projects, projectCategories }: ProjectsProps)
     activeFilter === 'All'
       ? allProjects
       : allProjects.filter((project) => project.categories.includes(activeFilter));
+
+  const openProject = (project: Project) => {
+    setSelectedProject(project);
+    trackEvent('project_view', {
+      metadata: {
+        category: project.categories[0] ?? 'unknown',
+        project_id: project.id,
+        project_title: project.title,
+        source: project.source ?? 'manual'
+      },
+      pagePath: '/#projects'
+    });
+  };
 
   useEffect(() => {
     if (!selectedProject) return;
@@ -171,7 +185,7 @@ export default function Projects({ projects, projectCategories }: ProjectsProps)
             <motion.button
               key={project.id}
               type="button"
-              onClick={() => setSelectedProject(project)}
+              onClick={() => openProject(project)}
               className={cn(
                 'group relative h-[68vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-line/45 bg-surface text-left shadow-glow transition hover:border-brand/60 md:sticky md:top-24',
                 index % 2 === 0 ? 'md:w-[78%] md:self-start' : 'md:w-[78%] md:self-end'

@@ -23,6 +23,8 @@ export default function Footer({ footer, contact, navigation, site }: FooterProp
               </p>
               <a
                 href={`mailto:${contact.email}`}
+                data-analytics-event="contact_open"
+                data-analytics-label="footer_email_link"
                 className="inline-block text-text transition hover:text-brand"
               >
                 {contact.email}
@@ -34,6 +36,8 @@ export default function Footer({ footer, contact, navigation, site }: FooterProp
                 <a
                   key={item.href}
                   href={item.href}
+                  data-analytics-event={item.href.includes('contact') ? 'contact_open' : undefined}
+                  data-analytics-label={item.href.includes('contact') ? 'footer_contact_nav' : undefined}
                   className="text-muted transition hover:text-brand"
                 >
                   {item.label}

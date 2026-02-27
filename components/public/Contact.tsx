@@ -153,7 +153,12 @@ export default function Contact({ contact }: ContactProps) {
               {state === 'error' ? (
                 <p className="rounded-lg border border-brand/50 bg-brand/10 px-3 py-2 text-brand">
                   {errorMessage} Use{' '}
-                  <a href={fallbackMailto} className="underline">
+                  <a
+                    href={fallbackMailto}
+                    data-analytics-event="contact_open"
+                    data-analytics-label="contact_mailto_fallback"
+                    className="underline"
+                  >
                     mailto fallback
                   </a>
                   .
@@ -182,6 +187,8 @@ export default function Contact({ contact }: ContactProps) {
 
             <a
               href={fallbackMailto}
+              data-analytics-event="contact_open"
+              data-analytics-label="contact_email_link"
               className="mt-4 inline-flex rounded-xl border border-line/50 bg-surfaceAlt/70 px-4 py-3 text-sm font-medium text-text transition hover:border-brand/60 hover:text-brand"
             >
               Email: {contact.email}

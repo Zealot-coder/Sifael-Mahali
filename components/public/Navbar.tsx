@@ -159,6 +159,8 @@ export default function Navbar({ navigation, contact, siteName }: NavbarProps) {
             </span>
             <a
               href="#contact"
+              data-analytics-event="contact_open"
+              data-analytics-label="navbar_contact_link"
               className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-text transition hover:text-brand sm:inline"
             >
               Contact
@@ -222,6 +224,12 @@ export default function Navbar({ navigation, contact, siteName }: NavbarProps) {
                     <motion.li key={item.href} variants={menuItemVariants}>
                       <a
                         href={item.href}
+                        data-analytics-event={
+                          item.href.includes('contact') ? 'contact_open' : undefined
+                        }
+                        data-analytics-label={
+                          item.href.includes('contact') ? 'menu_contact_link' : undefined
+                        }
                         onClick={() => setIsMenuOpen(false)}
                         className={cn(
                           'inline-flex items-baseline gap-2 font-display text-4xl font-semibold uppercase leading-[0.9] tracking-[-0.03em] transition sm:text-6xl lg:text-7xl',
