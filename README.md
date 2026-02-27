@@ -17,7 +17,7 @@ Interactive, SEO-ready Next.js portfolio with motion, a lightweight 3D hero, and
 - Strict TypeScript and lint quality gates are enforced:
   - `tsconfig.json` (`strict: true`)
   - scripts: `typecheck`, `lint`, `build`, `check`
-- CI draft is in place at `.github/workflows/ci.yml`.
+- CI pipeline is in place at `.github/workflows/ci.yml`.
 
 ## Foundation Folder Layout
 ```text
@@ -69,18 +69,22 @@ styles/
 - `npm run lint:fix`
 - `npm run build`
 - `npm run check` (typecheck + lint + build)
+- `npm run migrations:check`
 - `npm run supabase:start`
 - `npm run supabase:stop`
 - `npm run supabase:status`
 - `npm run supabase:types`
 
-## CI Draft
+## CI/CD
 - Workflow file: `.github/workflows/ci.yml`
 - Current pipeline stages:
   - install (`npm ci`)
+  - migration validation (`npm run migrations:check`)
   - typecheck
   - lint
   - build
+- Deployment + rollback runbook:
+  - `docs/DEPLOYMENT_RUNBOOK.md`
 
 ## Local Supabase Setup
 Prerequisites:
@@ -202,6 +206,18 @@ Manual auth test flow:
   - `SENTRY_DSN` (server/edge)
   - `NEXT_PUBLIC_SENTRY_DSN` (client)
   - `SENTRY_ENVIRONMENT`, `SENTRY_RELEASE`, `SENTRY_TRACES_SAMPLE_RATE`
+
+## Phase 10: CI/CD + Deployment
+- CI hardened for mainline release quality gates:
+  - migration discipline checks
+  - typecheck, lint, and build on push/PR
+- Added formal deployment runbook:
+  - environment variable table
+  - migration discipline and verification flow
+  - Vercel deploy checklist
+  - rollback strategy and production readiness audit
+- Runbook location:
+  - `docs/DEPLOYMENT_RUNBOOK.md`
 
 ## Hosted Supabase Setup
 1. In Supabase Dashboard project `mnclxezauapsuewhioms`, copy Project URL + API keys.

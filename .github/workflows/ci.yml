@@ -1,14 +1,21 @@
-name: CI (Draft)
+name: CI
 
 on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, "chore/**", "feat/**", "fix/**"]
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   quality:
-    name: Lint, Typecheck, Build
+    name: Migrations, Typecheck, Lint, Build
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +30,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Validate migrations
+        run: npm run migrations:check
 
       - name: Typecheck
         run: npm run typecheck
