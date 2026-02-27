@@ -16,14 +16,28 @@
 
 html.light {
   color-scheme: light;
-  --bg: 245 255 250;
-  --surface: 255 255 255;
-  --surface-alt: 234 250 241;
-  --text: 8 33 22;
-  --muted: 52 118 86;
-  --line: 167 228 196;
-  --brand: 16 163 75;
-  --accent: 102 183 35;
+  --bg: 222 231 225;
+  --surface: 231 239 233;
+  --surface-alt: 214 226 219;
+  --text: 18 39 30;
+  --muted: 66 103 86;
+  --line: 138 170 154;
+  --brand: 22 134 66;
+  --accent: 97 146 35;
+}
+
+html.light body {
+  background-color: rgb(var(--bg));
+  background-image:
+    radial-gradient(circle at 16% 14%, rgb(var(--brand) / 0.12), transparent 36%),
+    radial-gradient(circle at 82% 74%, rgb(var(--accent) / 0.1), transparent 40%),
+    linear-gradient(
+      150deg,
+      rgb(215 226 219 / 1),
+      rgb(221 232 225 / 1) 42%,
+      rgb(213 223 217 / 1) 68%,
+      rgb(208 219 212 / 1)
+    );
 }
 
 * {
