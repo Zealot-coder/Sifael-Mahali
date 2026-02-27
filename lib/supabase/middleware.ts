@@ -1,15 +1,28 @@
 import { type CookieOptions, createServerClient } from '@supabase/ssr';
+import type { User } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
 import type { Database } from '@/types/supabase';
 
-export async function updateSupabaseSession(request: NextRequest) {
+interface MiddlewareSessionResult {
+  response: NextResponse;
+  user: User | null;
+  envMissing: boolean;
+}
+
+export async function getSupabaseUserForMiddleware(
+  request: NextRequest
+): Promise<MiddlewareSessionResult> {
   const fallbackResponse = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // Fail open so missing env does not take down the entire app at middleware level.
   if (!url || !anonKey) {
-    return fallbackResponse;
+    return {
+      response: fallbackResponse,
+      user: null,
+      envMissing: true
+    };
   }
 
   let response = fallbackResponse;
@@ -37,9 +50,25 @@ export async function updateSupabaseSession(request: NextRequest) {
       }
     });
 
-    await supabase.auth.getUser();
-    return response;
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    return {
+      response,
+      user,
+      envMissing: false
+    };
   } catch {
-    return fallbackResponse;
+    return {
+      response: fallbackResponse,
+      user: null,
+      envMissing: false
+    };
   }
+}
+
+export async function updateSupabaseSession(request: NextRequest) {
+  const { response } = await getSupabaseUserForMiddleware(request);
+  return response;
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { PortfolioContent } from '@/content/content';
 import { cn } from '@/lib/utils/cn';
 
@@ -37,9 +38,8 @@ function safeStringify(value: unknown) {
 }
 
 export default function OwnerDashboard() {
-  const [password, setPassword] = useState('');
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [content, setContent] = useState<PortfolioContent | null>(null);
   const [storage, setStorage] = useState<'kv' | 'file' | 'unknown'>('unknown');
   const [error, setError] = useState('');
@@ -67,6 +67,10 @@ export default function OwnerDashboard() {
     []
   );
 
+  const redirectToLogin = useCallback(() => {
+    router.replace('/owner/login?next=%2Fowner');
+  }, [router]);
+
   const loadContent = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -77,8 +81,7 @@ export default function OwnerDashboard() {
       });
 
       if (response.status === 401) {
-        setIsAuthenticated(false);
-        setContent(null);
+        redirectToLogin();
         return;
       }
 
@@ -90,59 +93,26 @@ export default function OwnerDashboard() {
 
       setContent(payload.content);
       setStorage(payload.storage ?? 'unknown');
-      setIsAuthenticated(true);
       refreshEditorText(activeSection, payload.content);
     } catch {
       setError('Unable to load content.');
     } finally {
       setLoading(false);
     }
-  }, [activeSection, refreshEditorText]);
+  }, [activeSection, redirectToLogin, refreshEditorText]);
 
   useEffect(() => {
     void loadContent();
   }, [loadContent]);
 
-  const login = async () => {
-    if (!password.trim()) {
-      setError('Enter your owner password.');
-      return;
-    }
-
+  const logout = async () => {
     setLoading(true);
-    setError('');
     try {
-      const response = await fetch('/api/owner/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ password })
-      });
-
-      const payload = (await response.json()) as { ok?: boolean; error?: string };
-      if (!response.ok || !payload.ok) {
-        setError(payload.error ?? 'Login failed.');
-        return;
-      }
-
-      setPassword('');
-      await loadContent();
-    } catch {
-      setError('Login failed.');
+      await fetch('/api/owner/logout', { method: 'POST' });
     } finally {
       setLoading(false);
+      redirectToLogin();
     }
-  };
-
-  const logout = async () => {
-    await fetch('/api/owner/logout', { method: 'POST' });
-    setIsAuthenticated(false);
-    setContent(null);
-    setEditorText('');
-    setIsDirty(false);
-    setSuccess('');
-    setError('');
   };
 
   const switchSection = (nextSection: keyof PortfolioContent | 'all') => {
@@ -181,12 +151,15 @@ export default function OwnerDashboard() {
       });
 
       if (response.status === 401) {
-        setIsAuthenticated(false);
-        setError('Session expired. Login again.');
+        redirectToLogin();
         return;
       }
 
-      const payload = (await response.json()) as { ok?: boolean; error?: string; storage?: 'kv' | 'file' };
+      const payload = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        storage?: 'kv' | 'file';
+      };
       if (!response.ok || !payload.ok) {
         setError(payload.error ?? 'Unable to save content.');
         return;
@@ -205,45 +178,27 @@ export default function OwnerDashboard() {
     }
   };
 
-  if (!isAuthenticated) {
+  if (!content) {
     return (
       <div className="min-h-screen bg-bg px-4 py-20 text-text sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-md rounded-2xl border border-line/50 bg-surface/80 p-6 shadow-glow backdrop-blur-xl">
+        <div className="mx-auto max-w-xl rounded-2xl border border-line/50 bg-surface/80 p-6 shadow-glow backdrop-blur-xl">
           <h1 className="font-display text-2xl font-semibold uppercase tracking-[0.04em]">
-            Owner Login
+            Owner Dashboard
           </h1>
-          <p className="mt-2 text-sm text-muted">
-            Private dashboard for managing all portfolio sections.
-          </p>
-
-          <label className="mt-6 block text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            disabled={loading}
-            className="mt-2 w-full rounded-xl border border-line/60 bg-surfaceAlt/60 px-4 py-3 text-sm outline-none transition focus:border-brand/70"
-            placeholder="Enter OWNER_PASSWORD"
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') void login();
-            }}
-          />
-
+          {loading ? (
+            <p className="mt-3 text-sm text-muted">Loading secure dashboard session...</p>
+          ) : null}
           {error ? (
             <p className="mt-3 rounded-lg border border-brand/40 bg-brand/10 px-3 py-2 text-sm text-brand">
               {error}
             </p>
           ) : null}
-
           <button
             type="button"
-            onClick={() => void login()}
-            disabled={loading}
-            className="mt-4 inline-flex rounded-xl bg-brand px-5 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-white transition hover:brightness-110 disabled:opacity-70"
+            onClick={() => void loadContent()}
+            className="mt-4 rounded-xl border border-line/60 bg-surfaceAlt/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-text transition hover:border-brand/60"
           >
-            {loading ? 'Please wait...' : 'Sign In'}
+            Retry
           </button>
         </div>
       </div>
@@ -318,7 +273,6 @@ export default function OwnerDashboard() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (!content) return;
                     refreshEditorText(activeSection, content);
                     setSuccess('Section reset to last saved version.');
                   }}

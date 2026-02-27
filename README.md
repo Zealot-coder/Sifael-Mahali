@@ -118,6 +118,23 @@ Rollback:
 - `npx supabase migration repair --status reverted 001_initial_schema 002_rls_policies`
 - `npx supabase db reset`
 
+## Phase 3: Auth + Session
+- Owner authentication now uses Supabase Auth with SSR cookie sessions.
+- Session cookies are managed by `@supabase/ssr` as httpOnly secure cookies in production.
+- Protected routes:
+  - `/owner/*` requires authenticated owner session.
+  - `/owner/login` redirects to `/owner` when already authenticated.
+- Owner logout endpoint:
+  - `POST /api/owner/logout` signs out Supabase session server-side.
+- Owner content API security:
+  - `GET/PUT /api/owner/content` validates Supabase session via `auth.getUser()`.
+
+Manual auth test flow:
+1. Open `/owner` while signed out; confirm redirect to `/owner/login`.
+2. Sign in with Supabase owner email/password.
+3. Confirm redirect to `/owner` and dashboard loads.
+4. Click Logout; confirm redirect back to `/owner/login`.
+
 ## Hosted Supabase Setup
 1. In Supabase Dashboard project `mnclxezauapsuewhioms`, copy Project URL + API keys.
 2. Configure env vars in Vercel:
@@ -154,8 +171,6 @@ Rollback:
   - `GITHUB_USERNAME` (default: `Zealot-coder`)
   - `GITHUB_TOKEN` (GitHub personal access token with read access)
 - Owner dashboard is available at `/owner` with full JSON CRUD editing.
-- Set `OWNER_PASSWORD` to enable owner login.
-- Set `OWNER_SESSION_SECRET` for stronger session signing in production.
 - Content persistence mode:
   - `KV_REST_API_URL` + `KV_REST_API_TOKEN` configured: persistent Vercel KV mode.
   - No KV variables: local file mode (`content/portfolio-content.local.json`, local/dev only).

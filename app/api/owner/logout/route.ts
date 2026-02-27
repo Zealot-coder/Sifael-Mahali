@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server';
-import { OWNER_SESSION_COOKIE } from '@/lib/owner-auth';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 
 export async function POST() {
-  const response = NextResponse.json({ ok: true });
-  response.cookies.set({
-    name: OWNER_SESSION_COOKIE,
-    value: '',
-    maxAge: 0,
-    path: '/'
-  });
-  return response;
+  try {
+    const supabase = createSupabaseServerClient();
+    await supabase.auth.signOut();
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: 'Unable to sign out.' },
+      { status: 500 }
+    );
+  }
 }

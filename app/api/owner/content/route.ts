@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import type { PortfolioContent } from '@/content/content';
-import { isOwnerAuthenticated } from '@/lib/owner-auth';
 import {
   getContentStorageMode,
   getPortfolioContent,
   savePortfolioContent
 } from '@/lib/portfolio-store';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 
@@ -19,8 +19,20 @@ function unauthorized() {
   );
 }
 
-export async function GET(request: NextRequest) {
-  if (!isOwnerAuthenticated(request)) return unauthorized();
+async function isOwnerRequestAuthenticated() {
+  try {
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+    return Boolean(user);
+  } catch {
+    return false;
+  }
+}
+
+export async function GET() {
+  if (!(await isOwnerRequestAuthenticated())) return unauthorized();
 
   const content = await getPortfolioContent();
   return NextResponse.json({
@@ -31,7 +43,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  if (!isOwnerAuthenticated(request)) return unauthorized();
+  if (!(await isOwnerRequestAuthenticated())) return unauthorized();
 
   try {
     const body = (await request.json()) as { content?: PortfolioContent };

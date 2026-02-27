@@ -3,4 +3,4 @@ export {
   createSupabaseServerClient,
   createSupabaseServiceRoleClient
 } from './server';
-export { updateSupabaseSession } from './middleware';
+export { getSupabaseUserForMiddleware, updateSupabaseSession } from './middleware';
