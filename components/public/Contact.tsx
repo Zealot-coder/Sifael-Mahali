@@ -35,6 +35,20 @@ export default function Contact({ contact }: ContactProps) {
     return `mailto:${contact.email}?subject=${subject}`;
   }, [contact.email]);
 
+  const phoneHref = useMemo(() => {
+    if (!contact.phone) return '';
+    const sanitized = contact.phone.replace(/\s+/g, '');
+    return `tel:${sanitized}`;
+  }, [contact.phone]);
+
+  const whatsappHref = useMemo(() => {
+    if (contact.whatsappUrl) return contact.whatsappUrl;
+    if (!contact.phone) return '';
+    const digits = contact.phone.replace(/\D/g, '');
+    if (!digits) return '';
+    return `https://wa.me/${digits}`;
+  }, [contact.phone, contact.whatsappUrl]);
+
   useEffect(() => {
     if (state !== 'success') return;
     const timer = window.setTimeout(() => setState('idle'), 5000);
@@ -75,7 +89,7 @@ export default function Contact({ contact }: ContactProps) {
         <SectionHeading
           eyebrow="Contact"
           title="Let's Build Something Secure And Useful"
-          description="Use the form or fallback mailto link. Social links are editable in content.ts."
+          description="Use the form or direct links below. Contact details are editable from owner profile and content.ts."
         />
       </Reveal>
 
@@ -201,14 +215,38 @@ export default function Contact({ contact }: ContactProps) {
               ))}
             </ul>
 
-            <a
-              href={fallbackMailto}
-              data-analytics-event="contact_open"
-              data-analytics-label="contact_email_link"
-              className="mt-4 inline-flex rounded-xl border border-line/50 bg-surfaceAlt/70 px-4 py-3 text-sm font-medium text-text transition hover:border-brand/60 hover:text-brand"
-            >
-              Email: {contact.email}
-            </a>
+            <div className="mt-4 grid gap-2">
+              <a
+                href={fallbackMailto}
+                data-analytics-event="contact_open"
+                data-analytics-label="contact_email_link"
+                className="inline-flex rounded-xl border border-line/50 bg-surfaceAlt/70 px-4 py-3 text-sm font-medium text-text transition hover:border-brand/60 hover:text-brand"
+              >
+                Email: {contact.email}
+              </a>
+              {contact.phone ? (
+                <a
+                  href={phoneHref}
+                  data-analytics-event="contact_open"
+                  data-analytics-label="contact_phone_link"
+                  className="inline-flex rounded-xl border border-line/50 bg-surfaceAlt/70 px-4 py-3 text-sm font-medium text-text transition hover:border-brand/60 hover:text-brand"
+                >
+                  Phone: {contact.phone}
+                </a>
+              ) : null}
+              {whatsappHref ? (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-analytics-event="contact_open"
+                  data-analytics-label="contact_whatsapp_link"
+                  className="inline-flex rounded-xl border border-line/50 bg-surfaceAlt/70 px-4 py-3 text-sm font-medium text-text transition hover:border-brand/60 hover:text-brand"
+                >
+                  WhatsApp Chat
+                </a>
+              ) : null}
+            </div>
           </article>
         </div>
       </Reveal>

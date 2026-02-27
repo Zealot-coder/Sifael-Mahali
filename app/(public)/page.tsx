@@ -27,6 +27,7 @@ export default async function HomePage() {
         description: content.site.description,
         jobTitle: content.hero.tagline,
         email: content.contact.email,
+        ...(content.contact.phone ? { telephone: content.contact.phone } : {}),
         sameAs: content.contact.socials.map((item) => item.url),
         knowsAbout: content.site.keywords
       },

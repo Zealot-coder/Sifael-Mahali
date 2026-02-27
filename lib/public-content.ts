@@ -49,6 +49,8 @@ export interface PublicPortfolioData {
   }[];
   contact: {
     email: string;
+    phone?: string;
+    whatsappUrl?: string;
     socials: Array<{ handle: string; label: string; url: string }>;
   };
   dataStatus: {
@@ -136,6 +138,20 @@ function normalizeProjectScreenshot(url: string) {
 
 function parseStringArray(values: string[] | null | undefined) {
   return (values ?? []).filter((value) => typeof value === 'string' && value.trim().length > 0);
+}
+
+function normalizePhoneToDigits(phone: string) {
+  const digits = phone.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('00')) return digits.slice(2);
+  return digits;
+}
+
+function buildWhatsAppUrl(phone?: string | null) {
+  if (!phone) return undefined;
+  const digits = normalizePhoneToDigits(phone);
+  if (digits.length < 8) return undefined;
+  return `https://wa.me/${digits}`;
 }
 
 function jsonRecord(value: Json): Record<string, Json> {
@@ -329,6 +345,9 @@ export async function getPublicPortfolioData(): Promise<PublicPortfolioData> {
         ? socialMap.linkedin
         : fallbackContent.dataStatus.linkedInUrl;
     const githubUrl = typeof socialMap.github === 'string' ? socialMap.github : '';
+    const whatsappUrlFromSocial = typeof socialMap.whatsapp === 'string' ? socialMap.whatsapp : null;
+    const phone = profile.phone?.trim() || fallbackContent.contact.phone || undefined;
+    const whatsappUrl = whatsappUrlFromSocial || buildWhatsAppUrl(phone);
 
     const primaryCta = parseCta(settingMap.get('hero_cta_primary'), {
       href: '#projects',
@@ -438,6 +457,8 @@ export async function getPublicPortfolioData(): Promise<PublicPortfolioData> {
       certifications: mappedCertifications,
       contact: {
         email: profile.email,
+        ...(phone ? { phone } : {}),
+        ...(whatsappUrl ? { whatsappUrl } : {}),
         socials: [
           ...(linkedInUrl
             ? [

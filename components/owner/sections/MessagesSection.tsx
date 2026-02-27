@@ -15,6 +15,8 @@ interface MessagesSectionProps {
 }
 
 const statuses: MessageStatus[] = ['unread', 'read', 'replied', 'archived'];
+const PAGE_SIZE = 50;
+const PAGE_LIMIT = 8;
 
 export default function MessagesSection({ onToast, onUnauthorized }: MessagesSectionProps) {
   const [error, setError] = useState('');
@@ -34,16 +36,29 @@ export default function MessagesSection({ onToast, onUnauthorized }: MessagesSec
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetchList<MessageRow>('/api/contact', {
-        page: 1,
-        pageSize: 150,
-        ...(filter !== 'all' ? { status: filter } : {})
-      });
-      setMessages(response.items);
+      const allMessages: MessageRow[] = [];
+      let page = 1;
+
+      while (page <= PAGE_LIMIT) {
+        const response = await fetchList<MessageRow>('/api/contact', {
+          page,
+          pageSize: PAGE_SIZE,
+          ...(filter !== 'all' ? { status: filter } : {})
+        });
+        allMessages.push(...response.items);
+        const totalPages = response.pagination?.totalPages ?? 1;
+        if (page >= totalPages) break;
+        page += 1;
+      }
+
+      setMessages(allMessages);
       if (selectedId) {
-        const fresh = response.items.find((item) => item.id === selectedId);
+        const fresh = allMessages.find((item) => item.id === selectedId);
         if (fresh) {
           setNotesDraft(fresh.notes ?? '');
+        } else {
+          setSelectedId(null);
+          setNotesDraft('');
         }
       }
     } catch (error) {

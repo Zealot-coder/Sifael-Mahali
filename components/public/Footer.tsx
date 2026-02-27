@@ -2,7 +2,7 @@ import Reveal from './motion/Reveal';
 
 interface FooterProps {
   footer: { location: string; timezone: string };
-  contact: { email: string };
+  contact: { email: string; phone?: string };
   navigation: Array<{ href: string; label: string }>;
   site: { name: string };
 }
@@ -29,6 +29,16 @@ export default function Footer({ footer, contact, navigation, site }: FooterProp
               >
                 {contact.email}
               </a>
+              {contact.phone ? (
+                <a
+                  href={`tel:${contact.phone.replace(/\s+/g, '')}`}
+                  data-analytics-event="contact_open"
+                  data-analytics-label="footer_phone_link"
+                  className="inline-block text-text transition hover:text-brand"
+                >
+                  {contact.phone}
+                </a>
+              ) : null}
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-right text-sm font-semibold uppercase tracking-[0.12em]">

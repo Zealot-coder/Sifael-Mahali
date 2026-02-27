@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils/cn';
 
 interface NavbarProps {
   navigation: Array<{ href: string; label: string }>;
-  contact: { email: string; socials: Array<{ label: string; url: string }> };
+  contact: { email: string; phone?: string; socials: Array<{ label: string; url: string }> };
   siteName: string;
 }
 
@@ -258,6 +258,14 @@ export default function Navbar({ navigation, contact, siteName }: NavbarProps) {
                 >
                   {contact.email}
                 </a>
+                {contact.phone ? (
+                  <a
+                    href={`tel:${contact.phone.replace(/\s+/g, '')}`}
+                    className="transition hover:text-brand"
+                  >
+                    {contact.phone}
+                  </a>
+                ) : null}
                 {primarySocial?.url ? (
                   <a
                     href={primarySocial.url}

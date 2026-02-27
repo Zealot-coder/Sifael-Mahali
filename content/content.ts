@@ -92,6 +92,8 @@ export interface PortfolioContent {
   certifications: CertificationItem[];
   contact: {
     email: string;
+    phone?: string;
+    whatsappUrl?: string;
     socials: Array<{ label: string; url: string; handle: string }>;
   };
   footer: {
@@ -380,6 +382,8 @@ export const portfolioContent: PortfolioContent = {
   ],
   contact: {
     email: 'mahalisifael@gmail.com',
+    phone: '+25558670540',
+    whatsappUrl: 'https://wa.me/25558670540',
     socials: [
       {
         label: 'LinkedIn',
