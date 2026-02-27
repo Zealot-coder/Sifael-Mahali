@@ -28,7 +28,7 @@ export async function getSupabaseUserForMiddleware(
   let response = fallbackResponse;
 
   try {
-    const supabase = createServerClient<Database>(url, anonKey, {
+    const supabase = createServerClient<Database, 'public'>(url, anonKey, {
       cookies: {
         get(name: string) {
           return request.cookies.get(name)?.value;

@@ -1,2 +1,1 @@
-// Validation schema entrypoint scaffold.
-export {};
+export * from './api';

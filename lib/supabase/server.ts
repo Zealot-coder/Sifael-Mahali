@@ -40,16 +40,16 @@ export function createSupabaseServerClient() {
   const url = getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL');
   const anonKey = getRequiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
-  return createServerClient<Database>(url, anonKey, {
+  return createServerClient<Database, 'public'>(url, anonKey, {
     cookies: createCookieAdapter()
-  });
+  }) as ReturnType<typeof createServerClient>;
 }
 
 export function createSupabaseServiceRoleClient() {
   const url = getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL');
   const serviceRoleKey = getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY');
 
-  return createServerClient<Database>(url, serviceRoleKey, {
+  return createServerClient<Database, 'public'>(url, serviceRoleKey, {
     cookies: {
       get() {
         return undefined;
@@ -57,5 +57,5 @@ export function createSupabaseServiceRoleClient() {
       set() {},
       remove() {}
     }
-  });
+  }) as ReturnType<typeof createServerClient>;
 }

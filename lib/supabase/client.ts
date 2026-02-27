@@ -3,7 +3,7 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/types/supabase';
 
-let browserClient: ReturnType<typeof createBrowserClient<Database>> | undefined;
+let browserClient: ReturnType<typeof createBrowserClient<Database, 'public'>> | undefined;
 
 function getPublicSupabaseEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -22,6 +22,6 @@ export function createSupabaseBrowserClient() {
   if (browserClient) return browserClient;
 
   const { url, anonKey } = getPublicSupabaseEnv();
-  browserClient = createBrowserClient<Database>(url, anonKey);
+  browserClient = createBrowserClient<Database, 'public'>(url, anonKey);
   return browserClient;
 }
